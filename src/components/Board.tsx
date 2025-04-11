@@ -11,11 +11,11 @@ export const Board: React.FC = () => {
   return (
     <div className="relative flex flex-col">
       {/* File letters (a-h) at the top */}
-      <div className="flex ml-8 mb-1">
+      <div className="flex ml-6 md:ml-8 mb-1">
         {files.map((file) => (
           <div
             key={file}
-            className="w-[92px] text-center text-lg text-[#563fea] font-[MedievalSharp] uppercase"
+            className="w-[40px] md:w-[92px] text-center text-sm md:text-lg text-white font-[MedievalSharp] uppercase"
           >
             {file}
           </div>
@@ -24,9 +24,9 @@ export const Board: React.FC = () => {
 
       <div className="flex">
         {/* Rank numbers (8-1) on the left */}
-        <div className="flex flex-col justify-around mr-2 text-lg text-[#563fea] font-[MedievalSharp]">
+        <div className="flex flex-col justify-around mr-1 md:mr-2 text-sm md:text-lg text-white font-[MedievalSharp]">
           {ranks.map((rank) => (
-            <div key={rank} className="h-[92px] flex items-center">
+            <div key={rank} className="h-[40px] md:h-[92px] flex items-center">
               {rank}
             </div>
           ))}
@@ -36,11 +36,11 @@ export const Board: React.FC = () => {
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           animate={{ opacity: 1, y: 0 }}
-          className="w-[740px] h-[740px] grid grid-cols-8 bg-[#6B4423] p-2 rounded-lg shadow-2xl overflow-hidden"
+          className="w-[320px] h-[320px] md:w-[740px] md:h-[740px] grid grid-cols-8 bg-[#6B4423] p-1 md:p-2 rounded-lg shadow-2xl overflow-hidden"
           style={{
-            gridTemplateColumns: "repeat(8, minmax(80px, 1fr))",
-            gridTemplateRows: "repeat(8, minmax(80px, 1fr))",
-            gap: "2px",
+            gridTemplateColumns: "repeat(8, minmax(0, 1fr))",
+            gridTemplateRows: "repeat(8, minmax(0, 1fr))",
+            gap: "1px md:2px",
           }}
         >
           {Array(8)
