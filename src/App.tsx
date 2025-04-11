@@ -18,32 +18,34 @@ function App() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[#FFB4A2] to-[#E5989B] flex flex-col items-center justify-center p-8">
-      <motion.div
-        initial={{ opacity: 0, y: -20 }}
-        animate={{ opacity: 1, y: 0 }}
-        className="mb-8 text-center"
-      >
-        <h1 className="text-4xl font-[MedievalSharp] text-[#6D6875] mb-2">
-          KINGDOM of HARPOON
-        </h1>
-        {isCheckmate ? (
-          <p className="text-lg font-[MedievalSharp] text-[#B5838D] mb-4 font-bold">
-            Checkmate! {currentPlayer === "white" ? "Black" : "White"} wins!
-          </p>
-        ) : (
-          <p className="text-lg font-[MedievalSharp] text-[#B5838D] mb-4">
-            Current Turn: {currentPlayer === "white" ? "⚪ You" : "⚫ AI"}
-          </p>
-        )}
-
+      <div className="relative w-full max-w-[1200px]">
         <button
           onClick={initializeBoard}
-          className="bg-[#B5838D] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#6D6875] transition-colors mx-auto font-[MedievalSharp]"
+          className="absolute right-0 top-0 bg-[#B5838D] text-white px-4 py-2 rounded-lg flex items-center gap-2 hover:bg-[#6D6875] transition-colors font-[MedievalSharp] z-10"
         >
           <RotateCcw size={20} />
           New Game
         </button>
-      </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: -20 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="mb-8 text-center"
+        >
+          <h1 className="text-4xl font-[MedievalSharp] text-[#6D6875] mb-2">
+            KINGDOM of HARPOON
+          </h1>
+          {isCheckmate ? (
+            <p className="text-lg font-[MedievalSharp] text-[#B5838D] mb-4 font-bold">
+              Checkmate! {currentPlayer === "white" ? "Black" : "White"} wins!
+            </p>
+          ) : (
+            <p className="text-lg font-[MedievalSharp] text-[#B5838D] mb-4">
+              Current Turn: {currentPlayer === "white" ? "⚪ You" : "⚫ AI"}
+            </p>
+          )}
+        </motion.div>
+      </div>
 
       <div className="flex gap-8 items-center">
         <CapturedPieces pieces={capturedPieces.black} color="black" />
