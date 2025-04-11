@@ -5,7 +5,7 @@ interface ModalProps {
   isOpen: boolean;
   title: string;
   message: string;
-  type: "check" | "checkmate";
+  type: "check" | "checkmate" | "stalemate";
   onClose: () => void;
 }
 
@@ -18,14 +18,23 @@ export const Modal: React.FC<ModalProps> = ({
 }) => {
   if (!isOpen) return null;
 
+  const getColorClass = () => {
+    switch (type) {
+      case "check":
+        return "text-amber-500";
+      case "checkmate":
+        return "text-red-600";
+      case "stalemate":
+        return "text-blue-500";
+      default:
+        return "text-gray-700";
+    }
+  };
+
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
       <div className="bg-white text-center rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl transform">
-        <div
-          className={`text-2xl font-bold mb-4 ${
-            type === "check" ? "text-amber-500" : "text-red-600"
-          }`}
-        >
+        <div className={`text-2xl font-bold mb-4 ${getColorClass()}`}>
           {title}
         </div>
         <p className="text-gray-700 mb-4">{message}</p>

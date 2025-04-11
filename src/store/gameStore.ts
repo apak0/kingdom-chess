@@ -13,11 +13,12 @@ interface GameState {
     black: Piece[];
   };
   isCheckmate: boolean;
+  isStalemate: boolean;
   modalState: {
     isOpen: boolean;
     title: string;
     message: string;
-    type: 'check' | 'checkmate';
+    type: 'check' | 'checkmate' | 'stalemate';
   };
   selectPiece: (position: Position | null) => void;
   movePiece: (from: Position, to: Position) => void;
@@ -139,6 +140,7 @@ export const useGameStore = create<GameState>((set, get) => ({
     black: []
   },
   isCheckmate: false,
+  isStalemate: false,
   modalState: {
     isOpen: false,
     title: '',
@@ -183,8 +185,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       const isInCheck = state.chess.inCheck();
       const isInCheckmate = state.chess.isCheckmate();
+      const isInStalemate = state.chess.isStalemate();
 
-      // Update state with check/checkmate status
+      // Update state with check/checkmate/stalemate status
       const newState = {
         ...state,
         board: newBoard,
@@ -193,16 +196,22 @@ export const useGameStore = create<GameState>((set, get) => ({
         moves: [...state.moves, { from, to }],
         capturedPieces: newCapturedPieces,
         isCheckmate: isInCheckmate,
-        modalState: isInCheck ? {
+        isStalemate: isInStalemate,
+        modalState: isInStalemate ? {
           isOpen: true,
-          title: '♚ Check!',
-          message: 'Black king is in check!',
+          title: '🤝 Pat!',
+          message: 'Oyun berabere bitti! Siyah oyuncu yasal hamle yapamıyor.',
+          type: 'stalemate'
+        } : isInCheck ? {
+          isOpen: true,
+          title: '♚ Şah!',
+          message: 'Siyah şah çekildi!',
           type: 'check'
         } : state.modalState
       };
 
-      // Handle AI move with delay
-      if (!isInCheckmate) {
+      // Handle AI move with delay if game is not over
+      if (!isInCheckmate && !isInStalemate) {
         setTimeout(() => {
           const bestMove = findBestMove(state.chess);
           if (bestMove) {
@@ -221,16 +230,23 @@ export const useGameStore = create<GameState>((set, get) => ({
 
             const playerInCheck = state.chess.inCheck();
             const playerInCheckmate = state.chess.isCheckmate();
+            const playerInStalemate = state.chess.isStalemate();
 
             set({
               ...newState,
               board: aiBoard,
               currentPlayer: 'white',
               isCheckmate: playerInCheckmate,
-              modalState: playerInCheck ? {
+              isStalemate: playerInStalemate,
+              modalState: playerInStalemate ? {
                 isOpen: true,
-                title: '♚ Check!',
-                message: 'White king is in check!',
+                title: '🤝 Pat!',
+                message: 'Oyun berabere bitti! Beyaz oyuncu yasal hamle yapamıyor.',
+                type: 'stalemate'
+              } : playerInCheck ? {
+                isOpen: true,
+                title: '♚ Şah!',
+                message: 'Beyaz şah çekildi!',
                 type: 'check'
               } : { ...state.modalState, isOpen: false }
             });
@@ -255,6 +271,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       moves: [],
       capturedPieces: { white: [], black: [] },
       isCheckmate: false,
+      isStalemate: false,
       modalState: {
         isOpen: false,
         title: '',
