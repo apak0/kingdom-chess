@@ -10,13 +10,14 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@supabase/supabase-js": "^2.49.4",
+    "chess.js": "^1.0.0-beta.7",
+    "framer-motion": "^11.0.8",
     "lucide-react": "^0.344.0",
     "react": "^18.3.1",
     "react-dom": "^18.3.1",
-    "framer-motion": "^11.0.8",
-    "zustand": "^4.5.2",
     "sonner": "^1.4.3",
-    "chess.js": "^1.0.0-beta.7"
+    "zustand": "^4.5.2"
   },
   "devDependencies": {
     "@eslint/js": "^9.9.1",
