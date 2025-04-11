@@ -6,6 +6,9 @@ import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
 import { useGameStore } from "./store/gameStore";
 
+// Import the background image
+import royalBg from "./assets/royal-bg.jpg";
+
 function App() {
   const {
     currentPlayer,
@@ -17,7 +20,17 @@ function App() {
   } = useGameStore();
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-[#FFB4A2] to-[#E5989B] flex flex-col items-center justify-center p-8">
+    <div
+  className="min-h-screen flex flex-col items-center justify-center p-8 relative"
+  style={{
+    backgroundImage: `url("/assets/royal-bg.jpg")`,
+    backgroundSize: "cover",
+    backgroundPosition: "center",
+    backgroundRepeat: "no-repeat",
+    backgroundAttachment: "fixed",
+  }}
+>
+
       <div className="relative w-full max-w-[1200px]">
         <button
           onClick={initializeBoard}
