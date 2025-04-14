@@ -153,15 +153,16 @@ function App() {
 
   if (!user) {
     return (
-      <div
-        className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8"
-        style={{
-          backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("/assets/royal-bg.jpg")`,
-          backgroundSize: "cover",
-          backgroundPosition: "center",
-        }}
-      >
-        <div className="text-center mb-8">
+      <div className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative">
+        <img
+          src="/assets/royal-bg.jpg"
+          alt="Medieval background"
+          className="absolute inset-0 w-full h-full object-cover z-0"
+          style={{
+            filter: "brightness(0.4)",
+          }}
+        />
+        <div className="text-center mb-8 relative z-10">
           <h1 className="text-4xl font-[MedievalSharp] text-[#FFD700] mb-2">
             KINGDOM of HARPOON
           </h1>
@@ -170,11 +171,13 @@ function App() {
           </p>
         </div>
 
-        {showSignUp ? <SignUp /> : <SignIn />}
+        <div className="relative z-10 w-[40%]">
+          {showSignUp ? <SignUp /> : <SignIn />}
+        </div>
 
         <button
           onClick={() => setShowSignUp(!showSignUp)}
-          className="mt-4 text-[#DEB887] hover:text-[#FFD700] transition-colors font-[MedievalSharp]"
+          className="mt-4 text-[#DEB887] hover:text-[#FFD700] transition-colors font-[MedievalSharp] relative z-10 "
         >
           {showSignUp
             ? "Already have an account? Sign In"
