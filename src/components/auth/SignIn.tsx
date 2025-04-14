@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { useAuthStore } from "../../store/authStore";
 
@@ -8,8 +8,31 @@ export const SignIn = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const { signIn, error } = useAuthStore();
 
+  // Load saved credentials on component mount
+  useEffect(() => {
+    const savedCredentials = localStorage.getItem("rememberedCredentials");
+    if (savedCredentials) {
+      const { email: savedEmail, password: savedPassword } =
+        JSON.parse(savedCredentials);
+      setEmail(savedEmail);
+      setPassword(savedPassword);
+      setRememberMe(true);
+    }
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    // Save or remove credentials based on remember me checkbox
+    if (rememberMe) {
+      localStorage.setItem(
+        "rememberedCredentials",
+        JSON.stringify({ email, password })
+      );
+    } else {
+      localStorage.removeItem("rememberedCredentials");
+    }
+
     await signIn(email, password, rememberMe);
   };
 
@@ -66,18 +89,19 @@ export const SignIn = () => {
       </div>
 
       <div className="mb-6 flex items-center">
-        <input
-          id="rememberMe"
-          type="checkbox"
-          checked={rememberMe}
-          onChange={(e) => setRememberMe(e.target.checked)}
-          className="w-4 h-4 rounded border-[#8B4513] bg-[#3A2718] text-[#FFD700] focus:ring-[#FFD700] focus:ring-offset-0"
-        />
-        <label
-          htmlFor="rememberMe"
-          className="ml-2 text-[#DEB887] font-[MedievalSharp]"
-        >
-          Remember me
+        <label className="flex items-center cursor-pointer space-x-2">
+          <input
+            type="checkbox"
+            checked={rememberMe}
+            onChange={(e) => setRememberMe(e.target.checked)}
+            className="peer hidden"
+          />
+          <div className="w-5 h-5 rounded border border-[#8B4513] bg-[#3A2718] flex items-center justify-center transition-colors peer-checked:bg-gray-200">
+            {rememberMe && <span className="text-white text-sm">✔</span>}
+          </div>
+          <span className="text-[#FFD700] font-[MedievalSharp]">
+            Remember me
+          </span>
         </label>
       </div>
 
