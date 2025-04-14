@@ -38,7 +38,7 @@ export const SignInPage = () => {
       </div>
 
       <motion.div
-        className="relative z-10 w-[90%] md:w-[40%]"
+        className="relative z-10 w-[90%] md:w-[30%]"
         initial={{ scale: 0.8, opacity: 0 }}
         animate={{ scale: 1, opacity: 1 }}
         transition={{ delay: 0.3 }}
