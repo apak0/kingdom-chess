@@ -7,7 +7,7 @@ interface AuthState {
   error: string | null;
   loading: boolean;
   signUp: (email: string, password: string, username: string) => Promise<void>;
-  signIn: (email: string, password: string) => Promise<void>;
+  signIn: (email: string, password: string, rememberMe: boolean) => Promise<void>;
   signOut: () => Promise<void>;
   initAuth: () => Promise<void>;
 }
@@ -105,11 +105,14 @@ export const useAuthStore = create<AuthState>((set) => ({
     }
   },
 
-  signIn: async (email: string, password: string) => {
+  signIn: async (email: string, password: string, rememberMe: boolean) => {
     try {
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
+        options: {
+          persistSession: rememberMe
+        }
       });
 
       if (error) throw error;

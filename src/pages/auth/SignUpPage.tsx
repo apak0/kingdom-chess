@@ -11,7 +11,7 @@ export const SignUpPage = () => {
       exit={{ opacity: 0 }}
     >
       <img
-        src="/assets/royal-bg.jpg"
+        src="https://i.hizliresim.com/t7u9qaj.jpg"
         alt="Medieval background"
         className="absolute inset-0 w-full h-full object-cover z-0"
         style={{

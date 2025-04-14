@@ -5,11 +5,12 @@ import { useAuthStore } from "../../store/authStore";
 export const SignIn = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [rememberMe, setRememberMe] = useState(false);
   const { signIn, error } = useAuthStore();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    await signIn(email, password);
+    await signIn(email, password, rememberMe);
   };
 
   return (
@@ -47,7 +48,7 @@ export const SignIn = () => {
         />
       </div>
 
-      <div className="mb-6">
+      <div className="mb-4">
         <label
           className="block text-[#DEB887] mb-2 font-[MedievalSharp]"
           htmlFor="password"
@@ -62,6 +63,22 @@ export const SignIn = () => {
           className="w-full p-3 rounded bg-[#3A2718] text-[#DEB887] border border-[#8B4513] focus:outline-none focus:border-[#FFD700] transition-colors"
           required
         />
+      </div>
+
+      <div className="mb-6 flex items-center">
+        <input
+          id="rememberMe"
+          type="checkbox"
+          checked={rememberMe}
+          onChange={(e) => setRememberMe(e.target.checked)}
+          className="w-4 h-4 rounded border-[#8B4513] bg-[#3A2718] text-[#FFD700] focus:ring-[#FFD700] focus:ring-offset-0"
+        />
+        <label
+          htmlFor="rememberMe"
+          className="ml-2 text-[#DEB887] font-[MedievalSharp]"
+        >
+          Remember me
+        </label>
       </div>
 
       <motion.button
