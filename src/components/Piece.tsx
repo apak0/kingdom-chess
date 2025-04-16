@@ -45,7 +45,7 @@ export const Piece: React.FC<PieceProps> = ({ piece, isSelected }) => {
       `}
     >
       <i
-        className={`fas fa-${pieceIcons[piece.type]} text-4xl md:text-7xl ${
+        className={`fas fa-${pieceIcons[piece.type]} text-4xl md:text-5xl ${
           isSelected ? "filter drop-shadow-lg" : ""
         }`}
       />
