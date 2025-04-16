@@ -28,7 +28,7 @@ export const Piece: React.FC<PieceProps> = ({ piece, isSelected }) => {
   return (
     <div
       className={`
-        w-full h-full flex items-center justify-center relative
+        w-full h-full flex items-center justify-center relative transform transition-transform duration-200
         ${
           isCheckmatedKing
             ? "text-red-600"
@@ -36,23 +36,27 @@ export const Piece: React.FC<PieceProps> = ({ piece, isSelected }) => {
             ? "text-white"
             : "text-gray-800"
         }
-        ${isSelected ? "z-10" : ""}
-        ${isCurrentPlayer && !isCheckmate ? "cursor-pointer" : "cursor-default"}
+        ${isSelected ? "z-10 scale-110" : ""}
+        ${
+          isCurrentPlayer && !isCheckmate
+            ? "cursor-pointer hover:scale-105"
+            : "cursor-default"
+        }
       `}
     >
       <i
-        className={`fas fa-${pieceIcons[piece.type]} text-3xl ${
+        className={`fas fa-${pieceIcons[piece.type]} text-4xl md:text-7xl ${
           isSelected ? "filter drop-shadow-lg" : ""
         }`}
       />
       {isSelected && (
-        <div className="absolute -inset-2 bg-gradient-to-br from-amber-200/40 to-yellow-400/40 rounded-full -z-10 shadow-[0_0_15px_rgba(251,191,36,0.3)]" />
+        <div className="absolute -inset-3 bg-gradient-to-br from-amber-200/40 to-yellow-400/40 rounded-full -z-10 shadow-[0_0_15px_rgba(251,191,36,0.3)]" />
       )}
       {isCheckmatedKing && (
-        <div className="absolute -inset-2 bg-gradient-to-br from-red-400/40 to-red-600/40 rounded-full -z-10 shadow-[0_0_15px_rgba(220,38,38,0.3)]" />
+        <div className="absolute -inset-3 bg-gradient-to-br from-red-400/40 to-red-600/40 rounded-full -z-10 shadow-[0_0_15px_rgba(220,38,38,0.3)]" />
       )}
       {isWinningKing && (
-        <div className="absolute -inset-2 bg-gradient-to-br from-green-400/40 to-green-600/40 rounded-full -z-10 shadow-[0_0_15px_rgba(34,197,94,0.3)]" />
+        <div className="absolute -inset-3 bg-gradient-to-br from-green-400/40 to-green-600/40 rounded-full -z-10 shadow-[0_0_15px_rgba(34,197,94,0.3)]" />
       )}
     </div>
   );

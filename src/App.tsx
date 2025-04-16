@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import { Routes, Route, Navigate } from "react-router-dom";
+import { Routes, Route, Navigate, useNavigate } from "react-router-dom";
 import { motion } from "framer-motion";
 import { RotateCcw, LogOut, CheckCircle, Eye } from "lucide-react";
 import { Modal } from "./components/Modal";
@@ -24,13 +24,22 @@ function App() {
     closeModal,
   } = useGameStore();
 
+  const navigate = useNavigate();
   const { user, signOut, initAuth } = useAuthStore();
-  const { updateUserScore, toggleScoreboard } = useScoreStore();
+  const { updateUserScore, toggleScoreboard, setScoreboardOpen } =
+    useScoreStore();
   const [isProcessingScore, setIsProcessingScore] = useState(false);
 
   useEffect(() => {
     initAuth();
-  }, [initAuth]);
+    // Başlangıçta leaderboard'u kapalı tut
+    setScoreboardOpen(false);
+  }, [initAuth, setScoreboardOpen]);
+
+  const handleSignOut = async () => {
+    await signOut();
+    navigate("/signin");
+  };
 
   // Game end notifications
   useEffect(() => {
@@ -167,9 +176,12 @@ function App() {
               }}
             >
               <Toaster position="top-center" />
-              <ScoreBoard />
 
-              <div className="relative w-full max-w-[1200px] px-2 md:px-0">
+              <div className="absolute top-0 left-0 w-full">
+                <ScoreBoard />
+              </div>
+
+              <div className="relative w-full max-w-[1200px] px-2 md:px-0 z-10">
                 <div className="flex justify-between items-center w-full mb-4">
                   <button
                     onClick={initializeBoard}
@@ -211,7 +223,7 @@ function App() {
                       {username}
                     </span>
                     <button
-                      onClick={signOut}
+                      onClick={handleSignOut}
                       className="bg-[#8B0000] text-white p-2 md:p-3 rounded-lg hover:bg-[#A40000] transition-colors z-10 shadow-[0_0_15px_rgba(139,0,0,0.4)] hover:shadow-[0_0_20px_rgba(139,0,0,0.6)]"
                       title="Sign Out"
                     >
