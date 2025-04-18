@@ -198,8 +198,9 @@ export const useGameStore = create<GameState>((set, get) => ({
         const newCapturedPieces = { ...state.capturedPieces };
 
         if (moveResult.captured) {
+          const capturedType = pieceTypeMap[moveResult.captured];
           const capturedPiece = {
-            type: moveResult.captured as PieceType["type"],
+            type: capturedType,
             color: state.currentPlayer === "white" ? "black" : "white",
             hasMoved: true,
           };
@@ -273,8 +274,9 @@ export const useGameStore = create<GameState>((set, get) => ({
               const aiBoard = convertBoardFromChess(state.chess);
 
               if (aiMoveResult.captured) {
+                const capturedType = pieceTypeMap[aiMoveResult.captured];
                 const capturedPiece = {
-                  type: aiMoveResult.captured as PieceType["type"],
+                  type: capturedType,
                   color: "white",
                   hasMoved: true,
                 };
@@ -434,8 +436,9 @@ export const useGameStore = create<GameState>((set, get) => ({
           // Eğer taş alındıysa yakalanan taşları güncelle
           const newCapturedPieces = { ...state.capturedPieces };
           if (moveResult.captured) {
+            const capturedType = pieceTypeMap[moveResult.captured];
             const capturedPiece = {
-              type: moveResult.captured as PieceType["type"],
+              type: capturedType,
               color: "white",
               hasMoved: true,
             };
@@ -586,8 +589,9 @@ export const useGameStore = create<GameState>((set, get) => ({
           // Eğer taş alındıysa yakalanan taşları güncelle
           const newCapturedPieces = { ...state.capturedPieces };
           if (moveResult.captured) {
+            const capturedType = pieceTypeMap[moveResult.captured];
             const capturedPiece = {
-              type: moveResult.captured as PieceType["type"],
+              type: capturedType,
               color: "black",
               hasMoved: true,
             };

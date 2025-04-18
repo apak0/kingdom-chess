@@ -56,7 +56,7 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
             }}
             className="w-12 h-12  flex items-center justify-center bg-[#6B4423] rounded-md shadow-inner"
           >
-            <PieceComponent piece={piece} />
+            <PieceComponent piece={piece} isCaptured={true} />
           </motion.div>
         ))}
       </div>
