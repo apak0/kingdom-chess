@@ -2,15 +2,30 @@ import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
 import { v4 as uuidv4 } from "uuid";
+import path from "path";
+import { fileURLToPath } from "url";
 
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
     origin: "*", // Production'da client URL'nize göre sınırlandırın
-  methods: ["GET", "POST"]
+    methods: ["GET", "POST"]
   },
 });
+
+// ES modules için __dirname alternatifi
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// Statik dosyaları serve et (production ortamında)
+if (process.env.NODE_ENV === "production") {
+  const distPath = path.join(__dirname, "../../dist");
+  app.use(express.static(distPath));
+  app.get("*", (req, res) => {
+    res.sendFile(path.join(distPath, "index.html"));
+  });
+}
 
 interface GameRoom {
   id: string;
@@ -20,7 +35,6 @@ interface GameRoom {
   };
   moves: any[];
 }
-
 
 io.engine.on("headers", (headers: any) => {
   headers["Access-Control-Allow-Origin"] = "*";

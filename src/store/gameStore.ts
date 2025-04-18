@@ -58,7 +58,8 @@ const findBestMove = (chess: Chess): string => {
 };
 
 // Socket.IO bağlantısı
-const socket = io(import.meta.env.VITE_SERVER_URL || "http://localhost:3001");
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || window.location.origin;
+const socket = io(SERVER_URL);
 
 interface GameState {
   chess: Chess;

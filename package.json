@@ -1,14 +1,18 @@
 {
-  "name": "vite-react-typescript-starter",
+  "name": "kingdom-of-harpoon",
   "private": true,
-  "version": "0.0.0",
+  "version": "0.1.0",
   "type": "module",
   "scripts": {
+    "dev": "vite",
+    "server": "tsx src/server/index.ts",
+    "dev:full": "concurrently \"npm run dev\" \"npm run server\"",
+    "build": "tsc && vite build",
+    "build:server": "tsc -p tsconfig.server.json",
+    "build:full": "npm run build && npm run build:server",
     "start": "node dist/server/index.js",
-    "build": "vite build && tsc -p tsconfig.node.json",
     "lint": "eslint .",
-    "preview": "vite preview",
-    "server": "tsx src/server/index.ts"
+    "preview": "vite preview"
   },
   "dependencies": {
     "chess.js": "^1.0.0-beta.7",
