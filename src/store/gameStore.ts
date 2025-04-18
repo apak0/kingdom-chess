@@ -188,11 +188,11 @@ export const useGameStore = create<GameState>((set, get) => ({
           newCapturedPieces.black = [...newCapturedPieces.black, capturedPiece];
         }
 
-        const isInCheck = state.chess.inCheck();
         const isInCheckmate = state.chess.isCheckmate();
         const isInStalemate = state.chess.isStalemate();
+        const isInCheck = state.chess.inCheck();
 
-        // Update state with check/checkmate/stalemate status
+        // Update state with checkmate/stalemate/check status
         const newState: GameState = {
           ...state,
           board: newBoard,
@@ -209,6 +209,13 @@ export const useGameStore = create<GameState>((set, get) => ({
                 message:
                   "Oyun berabere bitti! Siyah oyuncu yasal hamle yapamıyor.",
                 type: "stalemate",
+              }
+            : isInCheckmate
+            ? {
+                isOpen: true,
+                title: "♚ Şah Mat!",
+                message: "Tebrikler! Siyahı mat ettiniz!",
+                type: "checkmate",
               }
             : isInCheck
             ? {
@@ -240,9 +247,9 @@ export const useGameStore = create<GameState>((set, get) => ({
                 ];
               }
 
-              const playerInCheck = state.chess.inCheck();
               const playerInCheckmate = state.chess.isCheckmate();
               const playerInStalemate = state.chess.isStalemate();
+              const playerInCheck = state.chess.inCheck();
 
               set({
                 ...newState,
@@ -257,6 +264,13 @@ export const useGameStore = create<GameState>((set, get) => ({
                       message:
                         "Oyun berabere bitti! Beyaz oyuncu yasal hamle yapamıyor.",
                       type: "stalemate",
+                    }
+                  : playerInCheckmate
+                  ? {
+                      isOpen: true,
+                      title: "♚ Şah Mat!",
+                      message: "Üzgünüm, AI sizi mat etti!",
+                      type: "checkmate",
                     }
                   : playerInCheck
                   ? {
