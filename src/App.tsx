@@ -1,9 +1,10 @@
+import { useState } from "react";
 import { motion } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Copy } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
-import { useGameStore } from "./store/gameStore";
+import { useGameStore } from "./store/useGameStore";
 
 function App() {
   const {
@@ -14,7 +15,20 @@ function App() {
     isStalemate,
     modalState,
     closeModal,
+    createRoom,
+    joinRoom,
+    roomId,
+    isMultiplayer,
   } = useGameStore();
+
+  const [joinRoomId, setJoinRoomId] = useState("");
+  const [copied, setCopied] = useState(false);
+
+  const copyRoomId = () => {
+    navigator.clipboard.writeText(roomId || "");
+    setCopied(true);
+    setTimeout(() => setCopied(false), 2000);
+  };
 
   return (
     <div
@@ -36,6 +50,7 @@ function App() {
           >
             <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
           </button>
+
           <div className="flex flex-col items-center">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -47,23 +62,67 @@ function App() {
               </h1>
               {isCheckmate ? (
                 <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4 font-bold">
-                  Checkmate! {currentPlayer === "white" ? "Black" : "White"}{" "}
-                  wins!
+                  Şah Mat! {currentPlayer === "white" ? "Siyah" : "Beyaz"} kazandı!
                 </p>
               ) : isStalemate ? (
                 <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4 font-bold">
-                  Stalemate! It's a draw!
+                  Pat! Berabere!
                 </p>
               ) : (
                 <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4">
-                  Current Turn: {currentPlayer === "white" ? "⚪ You" : "⚫ AI"}
+                  Sıra: {currentPlayer === "white" ? "⚪ Beyaz" : "⚫ Siyah"}
                 </p>
               )}
             </motion.div>
           </div>
-          <div className="w-[48px] h-[48px]" />{" "}
-          {/* Spacer for layout balance */}
+
+          <div className="w-[48px] h-[48px]" />
         </div>
+
+        {!isMultiplayer && (
+          <div className="flex flex-col md:flex-row gap-4 justify-center mt-4">
+            <button
+              onClick={createRoom}
+              className="bg-[#B5838D] text-white px-4 py-2 rounded-lg hover:bg-[#6D6875] transition-colors"
+            >
+              Oda Oluştur
+            </button>
+            <div className="flex gap-2">
+              <input
+                type="text"
+                value={joinRoomId}
+                onChange={(e) => setJoinRoomId(e.target.value)}
+                placeholder="Oda Kodu"
+                className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20"
+                maxLength={6}
+              />
+              <button
+                onClick={() => joinRoom(joinRoomId)}
+                className="bg-[#B5838D] text-white px-4 py-2 rounded-lg hover:bg-[#6D6875] transition-colors"
+              >
+                Odaya Katıl
+              </button>
+            </div>
+          </div>
+        )}
+
+        {roomId && (
+          <div className="flex items-center justify-center gap-2 mt-4">
+            <div className="text-white bg-white/10 px-4 py-2 rounded-lg">
+              Oda Kodu: {roomId}
+            </div>
+            <button
+              onClick={copyRoomId}
+              className="bg-[#B5838D] text-white p-2 rounded-lg hover:bg-[#6D6875] transition-colors"
+              title="Kodu Kopyala"
+            >
+              <Copy className="w-5 h-5" />
+            </button>
+            {copied && (
+              <span className="text-white text-sm">Kod kopyalandı!</span>
+            )}
+          </div>
+        )}
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center mt-8">
