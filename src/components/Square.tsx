@@ -1,7 +1,7 @@
-import React from 'react';
-import { Position } from '../types';
-import { Piece as PieceComponent } from './Piece';
-import { useGameStore } from '../store/gameStore';
+import React from "react";
+import { Position } from "../types";
+import { Piece as PieceComponent } from "./Piece";
+import { useGameStore } from "../store/gameStore";
 
 interface SquareProps {
   position: Position;
@@ -9,43 +9,82 @@ interface SquareProps {
 }
 
 export const Square: React.FC<SquareProps> = ({ position, isLight }) => {
-  const { board, selectedPiece, currentPlayer, selectPiece, movePiece, isValidMove, isCheckmate } = useGameStore();
+  const {
+    board,
+    selectedPiece,
+    currentPlayer,
+    selectPiece,
+    movePiece,
+    isValidMove,
+    isCheckmate,
+    isMultiplayer,
+    playerColor,
+  } = useGameStore();
   const piece = board[position.y][position.x];
-  const isSelected = selectedPiece?.x === position.x && selectedPiece?.y === position.y;
-  const isValidTarget = selectedPiece && piece?.color === currentPlayer;
-  
+
+  // Seçilen konumu karşılaştırma
+  const isSelected =
+    selectedPiece &&
+    selectedPiece.position.x === position.x &&
+    selectedPiece.position.y === position.y;
+
+  // Geçerli hedef kontrolü
+  const isValidTarget = selectedPiece && !isSelected;
+
   const handleClick = () => {
+    // Oyun bittiyse veya çoklu oyuncu modunda doğru sıra bizde değilse işlem yapma
     if (isCheckmate) return;
-    
-    if (piece && piece.color === currentPlayer) {
-      if (!selectedPiece || (selectedPiece.x !== position.x || selectedPiece.y !== position.y)) {
+
+    if (isMultiplayer) {
+      // Multiplayer modunda, sadece kendi rengimizde olan taşları seçebiliriz
+      if (piece && piece.color === playerColor) {
         selectPiece(position);
         return;
       }
-      if (isSelected) {
-        selectPiece(null);
+
+      // Eğer zaten bir taş seçiliyse ve geçerli bir hedefse hamle yap
+      if (selectedPiece && isValidTarget) {
+        movePiece(selectedPiece.position, position);
+        return;
+      }
+    } else {
+      // Tek oyuncu modunda, sadece beyaz taşları seçebiliriz (AI siyah taşları kontrol eder)
+      if (piece && piece.color === currentPlayer) {
+        selectPiece(position);
+        return;
+      }
+
+      // Eğer zaten bir taş seçiliyse ve geçerli bir hedefse hamle yap
+      if (selectedPiece && isValidTarget) {
+        movePiece(selectedPiece.position, position);
         return;
       }
     }
-    
-    if (selectedPiece && !isValidTarget) {
-      movePiece(selectedPiece, position);
-    }
   };
 
-  const canMoveTo = selectedPiece && !isSelected && 
-    board[selectedPiece.y][selectedPiece.x] &&
-    isValidMove(selectedPiece, position, board, board[selectedPiece.y][selectedPiece.x]!);
+  // Seçilen taşın gidebileceği bir konum mu?
+  const canMoveTo =
+    selectedPiece &&
+    !isSelected &&
+    isValidMove(selectedPiece.position, position);
 
   return (
     <div
       onClick={handleClick}
       className={`
         aspect-square w-full h-full flex items-center justify-center relative
-        ${isLight ? 'bg-[#D4A373]' : 'bg-[#8B5E34]'}
-        ${isSelected ? 'ring-4 ring-[#4A3728] ring-opacity-90 shadow-lg' : ''}
+        ${isLight ? "bg-[#D4A373]" : "bg-[#8B5E34]"}
+        ${isSelected ? "ring-4 ring-[#4A3728] ring-opacity-90 shadow-lg" : ""}
         transition-colors duration-200
-        ${(piece?.color === currentPlayer || canMoveTo) && !isCheckmate ? 'cursor-pointer' : 'cursor-default'}
+        ${
+          isMultiplayer
+            ? (piece?.color === playerColor || canMoveTo) && !isCheckmate
+              ? "cursor-pointer"
+              : "cursor-default"
+            : (piece?.color === currentPlayer || canMoveTo) && !isCheckmate
+            ? "cursor-pointer"
+            : "cursor-default"
+        }
       `}
     >
       {piece && <PieceComponent piece={piece} isSelected={isSelected} />}

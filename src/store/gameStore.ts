@@ -1,46 +1,16 @@
 import { create } from "zustand";
-import { Chess, Square, Piece as ChessPiece } from "chess.js";
-import { Piece, Position, Move, PieceType, PieceColor } from "../types";
+import { Chess, Square as ChessSquare } from "chess.js";
 import { io } from "socket.io-client";
+import { Piece as PieceType, PieceColor, Position } from "../types";
 
-const socket = io("http://localhost:3001");
-
-interface GameState {
-  chess: Chess;
-  board: (Piece | null)[][];
-  selectedPiece: Position | null;
-  currentPlayer: "white" | "black";
-  moves: Move[];
-  capturedPieces: {
-    white: Piece[];
-    black: Piece[];
-  };
-  isCheckmate: boolean;
-  isStalemate: boolean;
-  modalState: {
-    isOpen: boolean;
-    title: string;
-    message: string;
-    type: "check" | "checkmate" | "stalemate";
-  };
-  roomId: string | null;
-  isMultiplayer: boolean;
-  selectPiece: (position: Position | null) => void;
-  movePiece: (from: Position, to: Position) => void;
-  initializeBoard: () => void;
-  isValidMove: (from: Position, to: Position) => boolean;
-  closeModal: () => void;
-  createRoom: () => void;
-  joinRoom: (roomId: string) => void;
-}
-
+// Yardımcı fonksiyonlar
 const convertToChessNotation = (pos: Position): string => {
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
   return files[pos.x] + ranks[pos.y];
 };
 
-const pieceTypeMap: Record<string, PieceType> = {
+const pieceTypeMap: Record<string, PieceType["type"]> = {
   p: "pawn",
   n: "knight",
   b: "bishop",
@@ -49,7 +19,7 @@ const pieceTypeMap: Record<string, PieceType> = {
   k: "king",
 };
 
-const convertPieceFromChess = (piece: ChessPiece | null): Piece | null => {
+const convertPieceFromChess = (piece: any): PieceType | null => {
   if (!piece) return null;
 
   const type = pieceTypeMap[piece.type];
@@ -63,14 +33,14 @@ const convertPieceFromChess = (piece: ChessPiece | null): Piece | null => {
   };
 };
 
-const convertBoardFromChess = (chess: Chess): (Piece | null)[][] => {
-  const board: (Piece | null)[][] = Array(8)
+const convertBoardFromChess = (chess: Chess): (PieceType | null)[][] => {
+  const board: (PieceType | null)[][] = Array(8)
     .fill(null)
     .map(() => Array(8).fill(null));
 
   for (let y = 0; y < 8; y++) {
     for (let x = 0; x < 8; x++) {
-      const square = convertToChessNotation({ x, y }) as Square;
+      const square = convertToChessNotation({ x, y }) as ChessSquare;
       const piece = chess.get(square);
       board[y][x] = piece ? convertPieceFromChess(piece) : null;
     }
@@ -83,61 +53,42 @@ const findBestMove = (chess: Chess): string => {
   const moves = chess.moves({ verbose: true });
   if (moves.length === 0) return "";
 
-  // Evaluate each move
-  const moveScores = moves.map((move) => {
-    const newChess = new Chess(chess.fen());
-    newChess.move(move);
-
-    let score = 0;
-
-    // Material value
-    const pieces = {
-      p: 1,
-      n: 3,
-      b: 3,
-      r: 5,
-      q: 9,
-      k: 0,
-    };
-
-    // Count material
-    const board = newChess.board();
-    for (let y = 0; y < 8; y++) {
-      for (let x = 0; x < 8; x++) {
-        const piece = board[y][x];
-        if (piece) {
-          const value = pieces[piece.type as keyof typeof pieces];
-          score += piece.color === "b" ? value : -value;
-        }
-      }
-    }
-
-    // Bonus for captures
-    if (move.captured) {
-      score += pieces[move.captured as keyof typeof pieces] * 1.2;
-    }
-
-    // Bonus for center control (e4, d4, e5, d5)
-    const centerSquares = ["e4", "d4", "e5", "d5"];
-    if (centerSquares.includes(move.to)) {
-      score += 0.3;
-    }
-
-    // Bonus for check
-    if (newChess.inCheck()) {
-      score += 0.5;
-    }
-
-    // Add randomness
-    score += Math.random() * 0.2;
-
-    return { move, score };
-  });
-
-  // Find best move
-  moveScores.sort((a, b) => b.score - a.score);
-  return moveScores[0].move.san;
+  // Basit bir değerlendirme
+  return moves[Math.floor(Math.random() * moves.length)].san;
 };
+
+// Socket.IO bağlantısı
+const socket = io("http://localhost:3001");
+
+interface GameState {
+  chess: Chess;
+  board: (PieceType | null)[][];
+  selectedPiece: { position: Position; piece: PieceType } | null;
+  currentPlayer: PieceColor;
+  moves: { from: Position; to: Position }[];
+  capturedPieces: {
+    white: PieceType[];
+    black: PieceType[];
+  };
+  isCheckmate: boolean;
+  isStalemate: boolean;
+  modalState: {
+    isOpen: boolean;
+    title: string;
+    message: string;
+    type: "check" | "checkmate" | "stalemate";
+  };
+  roomId: string | null;
+  isMultiplayer: boolean;
+  playerColor: PieceColor | null;
+  selectPiece: (position: Position) => void;
+  movePiece: (from: Position, to: Position) => void;
+  initializeBoard: () => void;
+  isValidMove: (from: Position, to: Position) => boolean;
+  closeModal: () => void;
+  createRoom: () => void;
+  joinRoom: (roomId: string) => void;
+}
 
 export const useGameStore = create<GameState>((set, get) => ({
   chess: new Chess(),
@@ -159,34 +110,77 @@ export const useGameStore = create<GameState>((set, get) => ({
   },
   roomId: null,
   isMultiplayer: false,
+  playerColor: null,
 
   selectPiece: (position) =>
     set((state) => {
-      // Eğer oyun multiplayer modundaysa ve sıra bizde değilse, seçime izin verme
-      if (
-        (state.isMultiplayer && state.currentPlayer !== "white") ||
-        (!state.isMultiplayer && state.currentPlayer === "black")
-      ) {
-        return state;
+      // Oyun bittiyse seçim yapılmamalı
+      if (state.isCheckmate || state.isStalemate) return state;
+
+      // Multiplayer modunda oyuncular sadece kendi renklerini seçebilmeli
+      if (state.isMultiplayer) {
+        const piece = state.board[position.y][position.x];
+        if (!piece || piece.color !== state.playerColor) return state;
+
+        return {
+          ...state,
+          selectedPiece: {
+            position,
+            piece,
+          },
+        };
       }
-      return { ...state, selectedPiece: position };
+
+      // Single player modunda sadece beyaz taşları seçebiliriz (AI siyah olduğu için)
+      if (!state.isMultiplayer && state.currentPlayer === "black") return state;
+
+      const piece = state.board[position.y][position.x];
+      if (!piece || piece.color !== state.currentPlayer) return state;
+
+      return {
+        ...state,
+        selectedPiece: {
+          position,
+          piece,
+        },
+      };
     }),
 
   movePiece: (from, to) =>
     set((state) => {
-      // Eğer oyun multiplayer modundaysa ve sıra bizde değilse veya oyun bittiyse, hamle yapmayı engelle
-      if (
-        (state.isMultiplayer && state.currentPlayer !== "white") ||
-        (!state.isMultiplayer && state.currentPlayer === "black") ||
-        state.isCheckmate ||
-        state.isStalemate
-      ) {
+      // Oyun bittiyse hamle yapılamaz
+      if (state.isCheckmate || state.isStalemate) {
         return state;
       }
 
       try {
-        const fromSquare = convertToChessNotation(from) as Square;
-        const toSquare = convertToChessNotation(to) as Square;
+        const fromSquare = convertToChessNotation(from);
+        const toSquare = convertToChessNotation(to);
+
+        // Hamleyi yapmadan önce kontrol: Doğru renkteki taşı mı hareket ettiriyoruz?
+        const piece = state.board[from.y][from.x];
+        if (!piece) {
+          console.log("Taş bulunamadı:", from);
+          return state;
+        }
+
+        // Multiplayer modunda, sadece kendi rengimizi ve sıramız geldiğinde hareket ettirebiliriz
+        if (state.isMultiplayer) {
+          if (piece.color !== state.playerColor) {
+            console.log("Kendi taşınızı seçmelisiniz");
+            return state;
+          }
+
+          // Eğer oyuncunun rengi ile current player uyuşmuyorsa hamle yapamaz
+          if (state.playerColor !== state.currentPlayer) {
+            console.log("Sıra sizde değil");
+            return state;
+          }
+        } else if (piece.color !== state.currentPlayer) {
+          // Tekli oyun modunda sadece sırası gelen oyuncu hamle yapabilir
+          console.log("Sırası olmayan taşla hamle yapılamaz");
+          return state;
+        }
 
         const moveResult = state.chess.move({
           from: fromSquare,
@@ -194,39 +188,50 @@ export const useGameStore = create<GameState>((set, get) => ({
           promotion: "q",
         });
 
-        if (!moveResult) return state;
+        if (!moveResult) {
+          console.log("Geçersiz hamle:", from, "->", to);
+          return state;
+        }
 
-        // Multiplayer modundaysa hamleyi socket üzerinden gönder
+        // Tahtayı ve yakalanan taşları güncelle
+        const newBoard = convertBoardFromChess(state.chess);
+        const newCapturedPieces = { ...state.capturedPieces };
+
+        if (moveResult.captured) {
+          const capturedPiece = {
+            type: moveResult.captured as PieceType["type"],
+            color: state.currentPlayer === "white" ? "black" : "white",
+            hasMoved: true,
+          };
+          newCapturedPieces[
+            state.currentPlayer === "white" ? "black" : "white"
+          ].push(capturedPiece);
+        }
+
+        // Multiplayer modunda hamleyi gönder
         if (state.isMultiplayer && state.roomId) {
+          console.log("Hamle gönderiliyor:", {
+            from: fromSquare,
+            to: toSquare,
+          });
           socket.emit("move", {
             roomId: state.roomId,
             move: { from: fromSquare, to: toSquare },
           });
         }
 
-        const newBoard = convertBoardFromChess(state.chess);
-        const newCapturedPieces = { ...state.capturedPieces };
-
-        // Handle player's captured pieces
-        if (moveResult.captured) {
-          const capturedPiece: Piece = {
-            type: pieceTypeMap[moveResult.captured],
-            color: "black" as PieceColor,
-            hasMoved: true,
-          };
-          newCapturedPieces.black = [...newCapturedPieces.black, capturedPiece];
-        }
-
+        // Şah/mat/pat durumlarını kontrol et
         const isInCheckmate = state.chess.isCheckmate();
         const isInStalemate = state.chess.isStalemate();
         const isInCheck = state.chess.inCheck();
 
-        // Update state with checkmate/stalemate/check status
-        const newState: GameState = {
+        // Yeni state'i oluştur
+        const newState = {
           ...state,
           board: newBoard,
           selectedPiece: null,
-          currentPlayer: state.isMultiplayer ? "black" : "black", // Multiplayer modunda sıranın karşı tarafa geçtiğini belirt
+          // Multiplayer modunda sıra diğer oyuncuya geçer, tek oyunculuda ise AI hamlesi yapılacak
+          currentPlayer: state.currentPlayer === "white" ? "black" : "white",
           moves: [...state.moves, { from, to }],
           capturedPieces: newCapturedPieces,
           isCheckmate: isInCheckmate,
@@ -235,28 +240,31 @@ export const useGameStore = create<GameState>((set, get) => ({
             ? {
                 isOpen: true,
                 title: "🤝 Pat!",
-                message:
-                  "Oyun berabere bitti! Siyah oyuncu yasal hamle yapamıyor.",
+                message: "Oyun berabere bitti!",
                 type: "stalemate",
               }
             : isInCheckmate
             ? {
                 isOpen: true,
                 title: "♚ Şah Mat!",
-                message: "Tebrikler! Siyahı mat ettiniz!",
+                message: `${
+                  state.currentPlayer === "white" ? "Beyaz" : "Siyah"
+                } oyuncu kazandı!`,
                 type: "checkmate",
               }
             : isInCheck
             ? {
                 isOpen: true,
                 title: "♚ Şah!",
-                message: "Siyah şah çekildi!",
+                message: `${
+                  state.currentPlayer === "white" ? "Siyah" : "Beyaz"
+                } şah çekildi!`,
                 type: "check",
               }
             : state.modalState,
         };
 
-        // Eğer multiplayer modunda değilsek ve oyun bitmemişse, AI hamlesini yap
+        // Tek oyuncu modunda ve oyun bitmemişse AI hamlesi yap
         if (!state.isMultiplayer && !isInCheckmate && !isInStalemate) {
           setTimeout(() => {
             const bestMove = findBestMove(state.chess);
@@ -265,9 +273,9 @@ export const useGameStore = create<GameState>((set, get) => ({
               const aiBoard = convertBoardFromChess(state.chess);
 
               if (aiMoveResult.captured) {
-                const capturedPiece: Piece = {
-                  type: pieceTypeMap[aiMoveResult.captured],
-                  color: "white" as PieceColor,
+                const capturedPiece = {
+                  type: aiMoveResult.captured as PieceType["type"],
+                  color: "white",
                   hasMoved: true,
                 };
                 newCapturedPieces.white = [
@@ -283,15 +291,14 @@ export const useGameStore = create<GameState>((set, get) => ({
               set({
                 ...newState,
                 board: aiBoard,
-                currentPlayer: "white",
+                currentPlayer: "white", // AI sonrası sıra yine oyuncuya (beyaz) geçer
                 isCheckmate: playerInCheckmate,
                 isStalemate: playerInStalemate,
                 modalState: playerInStalemate
                   ? {
                       isOpen: true,
                       title: "🤝 Pat!",
-                      message:
-                        "Oyun berabere bitti! Beyaz oyuncu yasal hamle yapamıyor.",
+                      message: "Oyun berabere bitti!",
                       type: "stalemate",
                     }
                   : playerInCheckmate
@@ -316,20 +323,22 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         return newState;
       } catch (error) {
-        console.error("Invalid move:", error);
+        console.error("Hamle yapılırken hata:", error);
         return state;
       }
     }),
 
-  initializeBoard: () => {
-    const chess = new Chess();
-    set({
-      chess,
-      board: convertBoardFromChess(chess),
+  initializeBoard: () =>
+    set(() => ({
+      chess: new Chess(),
+      board: convertBoardFromChess(new Chess()),
       selectedPiece: null,
       currentPlayer: "white",
       moves: [],
-      capturedPieces: { white: [], black: [] },
+      capturedPieces: {
+        white: [],
+        black: [],
+      },
       isCheckmate: false,
       isStalemate: false,
       modalState: {
@@ -340,22 +349,19 @@ export const useGameStore = create<GameState>((set, get) => ({
       },
       roomId: null,
       isMultiplayer: false,
-    });
-  },
+      playerColor: null,
+    })),
 
   isValidMove: (from, to) => {
     const state = get();
-    const fromSquare = convertToChessNotation(from) as Square;
-    const toSquare = convertToChessNotation(to) as Square;
+    const fromSquare = convertToChessNotation(from);
+    const toSquare = convertToChessNotation(to);
 
     try {
-      const moves = state.chess.moves({
-        square: fromSquare,
-        verbose: true,
-      });
-
+      const moves = state.chess.moves({ square: fromSquare, verbose: true });
       return moves.some((move) => move.to === toSquare);
-    } catch {
+    } catch (error) {
+      console.error("Hamle geçerliliği kontrol edilirken hata:", error);
       return false;
     }
   },
@@ -367,29 +373,44 @@ export const useGameStore = create<GameState>((set, get) => ({
     })),
 
   createRoom: () => {
-    // Oda oluşturma isteği gönder
-    socket.emit("createRoom");
-
-    // Event listener'ları temizle ve yeniden ekle (dublication önlemek için)
+    // Önceki event listener'ları temizle
     socket.off("roomCreated");
     socket.off("gameStart");
     socket.off("moveMade");
     socket.off("playerLeft");
 
-    // Oda oluşturulduğunda
+    // Oda oluşturma isteği gönder
+    socket.emit("createRoom");
+
+    // Yeni event listener'ları ekle
     socket.on("roomCreated", (roomId: string) => {
       set({
+        chess: new Chess(), // Yeni oyun başlat
+        board: convertBoardFromChess(new Chess()),
+        selectedPiece: null,
+        currentPlayer: "white",
+        moves: [],
+        capturedPieces: {
+          white: [],
+          black: [],
+        },
+        isCheckmate: false,
+        isStalemate: false,
         roomId,
         isMultiplayer: true,
-        currentPlayer: "white", // Oda oluşturan oyuncu beyaz olur
+        playerColor: "white",
+        modalState: {
+          isOpen: true,
+          title: "✅ Oda Oluşturuldu",
+          message: `Oda kodu: ${roomId}. Rakibinizin katılmasını bekleyin.`,
+          type: "check",
+        },
       });
       console.log("Oda oluşturuldu:", roomId);
     });
 
-    // Oyun başladığında (karşı oyuncu katıldığında)
     socket.on("gameStart", (gameData) => {
       console.log("Oyun başladı:", gameData);
-      // Oyun başladı bildirimi gösterilebilir
       set((state) => ({
         ...state,
         modalState: {
@@ -401,22 +422,21 @@ export const useGameStore = create<GameState>((set, get) => ({
       }));
     });
 
-    // Karşı oyuncudan hamle geldiğinde
     socket.on("moveMade", (move) => {
+      console.log("Beyaz oyuncu için hamle alındı:", move);
       const state = get();
       try {
-        // Chess.js formatında hamleyi uygula
+        // Chess.js hamle formatına çevir
         const moveResult = state.chess.move(move);
         if (moveResult) {
-          // Tahtayı güncelle
           const newBoard = convertBoardFromChess(state.chess);
 
-          // Eğer taş alındıysa, yakalanan taşları güncelle
+          // Eğer taş alındıysa yakalanan taşları güncelle
           const newCapturedPieces = { ...state.capturedPieces };
           if (moveResult.captured) {
-            const capturedPiece: Piece = {
-              type: pieceTypeMap[moveResult.captured],
-              color: "white" as PieceColor,
+            const capturedPiece = {
+              type: moveResult.captured as PieceType["type"],
+              color: "white",
               hasMoved: true,
             };
             newCapturedPieces.white = [
@@ -425,15 +445,13 @@ export const useGameStore = create<GameState>((set, get) => ({
             ];
           }
 
-          // Şah, mat veya pat durumlarını kontrol et
           const isInCheckmate = state.chess.isCheckmate();
           const isInStalemate = state.chess.isStalemate();
           const isInCheck = state.chess.inCheck();
 
-          // Store'u güncelle
           set({
             board: newBoard,
-            currentPlayer: "white", // Sıra beyaza geçer
+            currentPlayer: "white", // Sıra beyaz oyuncuya geçer
             capturedPieces: newCapturedPieces,
             isCheckmate: isInCheckmate,
             isStalemate: isInStalemate,
@@ -441,8 +459,7 @@ export const useGameStore = create<GameState>((set, get) => ({
               ? {
                   isOpen: true,
                   title: "🤝 Pat!",
-                  message:
-                    "Oyun berabere bitti! Beyaz oyuncu yasal hamle yapamıyor.",
+                  message: "Oyun berabere bitti!",
                   type: "stalemate",
                 }
               : isInCheckmate
@@ -467,9 +484,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     });
 
-    // Oyuncu ayrıldığında
     socket.on("playerLeft", () => {
-      // Oyuncu ayrıldı bildirimi göster
       set((state) => ({
         ...state,
         modalState: {
@@ -482,50 +497,72 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       // Multiplayer modunu kapat
       setTimeout(() => {
-        set((state) => ({
-          ...state,
-          isMultiplayer: false,
+        set({
+          chess: new Chess(),
+          board: convertBoardFromChess(new Chess()),
+          selectedPiece: null,
+          currentPlayer: "white",
+          moves: [],
+          capturedPieces: {
+            white: [],
+            black: [],
+          },
+          isCheckmate: false,
+          isStalemate: false,
+          modalState: {
+            isOpen: false,
+            title: "",
+            message: "",
+            type: "check",
+          },
           roomId: null,
-        }));
+          isMultiplayer: false,
+          playerColor: null,
+        });
       }, 3000);
     });
   },
 
   joinRoom: (roomId: string) => {
-    // Odaya katılma isteği gönder
-    socket.emit("joinRoom", roomId);
-
-    // Event listener'ları temizle ve yeniden ekle
+    // Önceki event listener'ları temizle
     socket.off("joinedRoom");
     socket.off("joinError");
+    socket.off("gameStart");
     socket.off("moveMade");
     socket.off("playerLeft");
 
-    // Odaya katıldığında
+    // Odaya katılma isteği gönder
+    socket.emit("joinRoom", roomId);
+
+    // Yeni event listener'ları ekle
     socket.on("joinedRoom", () => {
       set({
+        chess: new Chess(), // Yeni oyun başlat
+        board: convertBoardFromChess(new Chess()),
+        selectedPiece: null,
+        currentPlayer: "white", // İlk olarak beyaz başlar, ancak bizim rengimiz siyah
+        moves: [],
+        capturedPieces: {
+          white: [],
+          black: [],
+        },
+        isCheckmate: false,
+        isStalemate: false,
         roomId,
         isMultiplayer: true,
-        currentPlayer: "black", // Odaya katılan oyuncu siyah olur
-      });
-      console.log("Odaya katılındı:", roomId);
-
-      // Katılım bildirimi göster
-      set((state) => ({
-        ...state,
+        playerColor: "black",
         modalState: {
           isOpen: true,
           title: "🎮 Oyuna Katıldınız!",
           message: "Siyah taş olarak oynuyorsunuz. Beyazın hamlesini bekleyin.",
           type: "check",
         },
-      }));
+      });
+      console.log("Odaya katılındı:", roomId);
     });
 
-    // Katılma hatası olduğunda
     socket.on("joinError", (error) => {
       console.error("Odaya katılma hatası:", error);
-      // Hata bildirimi göster
       set((state) => ({
         ...state,
         modalState: {
@@ -537,19 +574,21 @@ export const useGameStore = create<GameState>((set, get) => ({
       }));
     });
 
-    // Aynı move event listener'ını ekle
     socket.on("moveMade", (move) => {
+      console.log("Siyah oyuncu için hamle alındı:", move);
       const state = get();
       try {
+        // Chess.js hamle formatına çevir
         const moveResult = state.chess.move(move);
         if (moveResult) {
           const newBoard = convertBoardFromChess(state.chess);
 
+          // Eğer taş alındıysa yakalanan taşları güncelle
           const newCapturedPieces = { ...state.capturedPieces };
           if (moveResult.captured) {
-            const capturedPiece: Piece = {
-              type: pieceTypeMap[moveResult.captured],
-              color: "black" as PieceColor,
+            const capturedPiece = {
+              type: moveResult.captured as PieceType["type"],
+              color: "black",
               hasMoved: true,
             };
             newCapturedPieces.black = [
@@ -564,7 +603,7 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           set({
             board: newBoard,
-            currentPlayer: "black", // Sıra siyaha geçer
+            currentPlayer: "black", // Sıra siyah oyuncuya geçer
             capturedPieces: newCapturedPieces,
             isCheckmate: isInCheckmate,
             isStalemate: isInStalemate,
@@ -572,8 +611,7 @@ export const useGameStore = create<GameState>((set, get) => ({
               ? {
                   isOpen: true,
                   title: "🤝 Pat!",
-                  message:
-                    "Oyun berabere bitti! Siyah oyuncu yasal hamle yapamıyor.",
+                  message: "Oyun berabere bitti!",
                   type: "stalemate",
                 }
               : isInCheckmate
@@ -598,9 +636,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     });
 
-    // Oyuncu ayrıldığında
     socket.on("playerLeft", () => {
-      // Oyuncu ayrıldı bildirimi göster
       set((state) => ({
         ...state,
         modalState: {
@@ -613,11 +649,28 @@ export const useGameStore = create<GameState>((set, get) => ({
 
       // Multiplayer modunu kapat
       setTimeout(() => {
-        set((state) => ({
-          ...state,
-          isMultiplayer: false,
+        set({
+          chess: new Chess(),
+          board: convertBoardFromChess(new Chess()),
+          selectedPiece: null,
+          currentPlayer: "white",
+          moves: [],
+          capturedPieces: {
+            white: [],
+            black: [],
+          },
+          isCheckmate: false,
+          isStalemate: false,
+          modalState: {
+            isOpen: false,
+            title: "",
+            message: "",
+            type: "check",
+          },
           roomId: null,
-        }));
+          isMultiplayer: false,
+          playerColor: null,
+        });
       }, 3000);
     });
   },

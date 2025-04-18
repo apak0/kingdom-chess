@@ -4,7 +4,7 @@ import { RotateCcw, Copy } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
-import { useGameStore } from "./store/useGameStore";
+import { useGameStore } from "./store/gameStore";
 
 function App() {
   const {
@@ -62,7 +62,8 @@ function App() {
               </h1>
               {isCheckmate ? (
                 <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4 font-bold">
-                  Şah Mat! {currentPlayer === "white" ? "Siyah" : "Beyaz"} kazandı!
+                  Şah Mat! {currentPlayer === "white" ? "Siyah" : "Beyaz"}{" "}
+                  kazandı!
                 </p>
               ) : isStalemate ? (
                 <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4 font-bold">
