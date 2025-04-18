@@ -4,8 +4,8 @@
   "version": "0.0.0",
   "type": "module",
   "scripts": {
-    "start": "vite",
-    "build": "vite build",
+    "start": "node dist/server/index.js",
+    "build": "vite build && tsc -p tsconfig.node.json",
     "lint": "eslint .",
     "preview": "vite preview",
     "server": "tsx src/server/index.ts"

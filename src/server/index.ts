@@ -7,8 +7,8 @@ const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "http://localhost:5173",
-    methods: ["GET", "POST"],
+    origin: "*", // Production'da client URL'nize göre sınırlandırın
+  methods: ["GET", "POST"]
   },
 });
 
@@ -21,6 +21,10 @@ interface GameRoom {
   moves: any[];
 }
 
+
+io.engine.on("headers", (headers: any) => {
+  headers["Access-Control-Allow-Origin"] = "*";
+}); // Socket.IO 3.x+ kullanıyorsanız
 const gameRooms = new Map<string, GameRoom>();
 
 io.on("connection", (socket) => {
