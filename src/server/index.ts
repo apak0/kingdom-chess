@@ -5,25 +5,29 @@ import { v4 as uuidv4 } from "uuid";
 import path from "path";
 import { fileURLToPath } from "url";
 
+// ES modules __dirname equivalent
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
 const app = express();
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // Production'da client URL'nize göre sınırlandırın
-    methods: ["GET", "POST"]
+    origin: "*", // In production, limit this to your client URL
+    methods: ["GET", "POST"],
   },
 });
 
-// ES modules için __dirname alternatifi
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = path.dirname(__filename);
-
-// Statik dosyaları serve et (production ortamında)
+// Serve static files in production
 if (process.env.NODE_ENV === "production") {
-  const distPath = path.join(__dirname, "../../dist");
-  app.use(express.static(distPath));
+  // For production, serve the client build files
+  const clientDistPath = path.join(__dirname, "../../dist");
+  console.log(`Serving static files from: ${clientDistPath}`);
+  app.use(express.static(clientDistPath));
+
+  // Send index.html for any route that doesn't match an API or static file
   app.get("*", (req, res) => {
-    res.sendFile(path.join(distPath, "index.html"));
+    res.sendFile(path.join(clientDistPath, "index.html"));
   });
 }
 

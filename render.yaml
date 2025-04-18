@@ -3,8 +3,8 @@ services:
     name: kingdom-of-harpoon
     env: node
     plan: free
-    buildCommand: npm install && npm run build:full
-    startCommand: node dist/server/index.js
+    buildCommand: npm ci && NODE_ENV=production npm run build:full
+    startCommand: NODE_ENV=production node dist/server/index.js
     envVars:
       - key: NODE_VERSION
         value: 18.x

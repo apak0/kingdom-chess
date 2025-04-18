@@ -10,9 +10,10 @@
     "build": "tsc && vite build",
     "build:server": "tsc -p tsconfig.server.json",
     "build:full": "npm run build && npm run build:server",
-    "start": "node dist/server/index.js",
+    "start": "NODE_ENV=production node dist/server/index.js",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "postinstall": "npm run build:full"
   },
   "dependencies": {
     "chess.js": "^1.0.0-beta.7",
