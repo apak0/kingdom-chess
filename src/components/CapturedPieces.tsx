@@ -25,9 +25,11 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ delay: index * 0.1 }}
-            className="w-[31px] h-[31px] md:w-7 ml-1 md:h-7 flex-shrink-0 flex items-center justify-center bg-[#5C3A21] rounded-md shadow-inner"
+            className="w-6 h-6 md:w-7 md:h-7 flex-shrink-0 flex items-center justify-center bg-[#5C3A21] rounded-md shadow-inner overflow-visible"
           >
-            <PieceComponent piece={piece} isCaptured={true} />
+            <div className="transform scale-125">
+              <PieceComponent piece={piece} isCaptured={true} />
+            </div>
           </motion.div>
         ))}
       </div>
