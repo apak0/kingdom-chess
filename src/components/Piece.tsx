@@ -54,7 +54,9 @@ export const Piece: React.FC<PieceProps> = ({
             : "cursor-default"
         }
       `}
-      style={{ transform: shouldRotate ? "rotate(180deg)" : "none" }}
+      style={{
+        transform: shouldRotate && !isCaptured ? "rotate(180deg)" : "none",
+      }}
     >
       <i
         className={`fas fa-${pieceIcon} ${

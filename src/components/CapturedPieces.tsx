@@ -13,7 +13,7 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
   pieces,
   color,
 }) => {
-  const { currentPlayer } = useGameStore();
+  const { currentPlayer, isMultiplayer, playerColor } = useGameStore();
   const isActive = color === currentPlayer;
 
   return (
@@ -34,15 +34,13 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
     >
       <h3 className="text-xl mb-4 font-[MedievalSharp] text-center tracking-wide">
         <div
-          className={`${
-            color === "white" ? "text-[#FFD700]" : "text-[#FFD700]"
-          }`}
+          className={color === "white" ? "text-[#FFD700]" : "text-[#FFD700]"}
         >
           ⚜️ {color === "white" ? "White" : "Black"} ⚜️
         </div>
         <div className="text-[#DEB887] text-sm mt-1">Captured Pieces</div>
       </h3>
-      <div className="grid grid-cols-3 p-2 gap-2 min-h-16  bg-[#5C3A21] rounded-lg border border-[#8B4513]">
+      <div className="grid grid-cols-3 p-2 gap-2 min-h-16 bg-[#5C3A21] rounded-lg border border-[#8B4513]">
         {pieces.map((piece, index) => (
           <motion.div
             key={`${piece.type}-${index}`}
@@ -54,7 +52,7 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
               damping: 20,
               delay: index * 0.1,
             }}
-            className="w-12 h-12  flex items-center justify-center bg-[#6B4423] rounded-md shadow-inner"
+            className="w-12 h-12 flex items-center justify-center bg-[#6B4423] rounded-md shadow-inner"
           >
             <PieceComponent piece={piece} isCaptured={true} />
           </motion.div>
