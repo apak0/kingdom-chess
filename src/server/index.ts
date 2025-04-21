@@ -14,7 +14,7 @@ const app = express();
 
 // CORS middleware
 app.use((req, res, next) => {
-  res.header("Access-Control-Allow-Origin", "https://kingdom-chess.onrender.com");
+  res.header("Access-Control-Allow-Origin", "*");
   res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
   res.header(
     "Access-Control-Allow-Headers",
@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "https://kingdom-chess.onrender.com/"],
+    origin: ["http://localhost:5173", "*"],
     methods: ["GET", "POST"],
     credentials: false,
     allowedHeaders: ["Content-Type"],
