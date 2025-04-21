@@ -26,7 +26,7 @@ app.use((req, res, next) => {
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: ["http://localhost:5173", "https://kingdom-chess.onrender.com/"],
+    origin: ["http://localhost:5173", "*"],
     methods: ["GET", "POST"],
     credentials: false,
     allowedHeaders: ["Content-Type"],
