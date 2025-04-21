@@ -59,9 +59,9 @@ const findBestMove = (chess: Chess): string => {
 
 // Socket.IO bağlantısı
 const SERVER_URL =
-  process.env.NODE_ENV === "production"
-    ? "https://kingdom-chess.onrender.com"
-    : import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+  import.meta.env.USE_LOCAL_SERVER === "true"
+    ? import.meta.env.VITE_SERVER_URL || "http://localhost:3001"
+    : "https://kingdom-chess.onrender.com";
 
 console.log("Connecting to server:", SERVER_URL);
 
@@ -74,7 +74,6 @@ const socket = io(SERVER_URL, {
   timeout: 20000,
   autoConnect: true,
   forceNew: true,
-  withCredentials: true,
 });
 
 socket.on("connect", () => {
