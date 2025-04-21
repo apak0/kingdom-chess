@@ -49,6 +49,7 @@ export const Board: React.FC = () => {
             gridTemplateRows: "repeat(8, minmax(0, 1fr))",
             gap: "1px md:2px",
             transform: shouldRotateBoard ? "rotate(180deg)" : "none",
+            maxWidth: "95vw",
           }}
         >
           {Array(8)

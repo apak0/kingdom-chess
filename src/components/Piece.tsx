@@ -60,7 +60,7 @@ export const Piece: React.FC<PieceProps> = ({
     >
       <i
         className={`fas fa-${pieceIcon} ${
-          isCaptured ? "text-2xl md:text-3xl" : "text-4xl md:text-5xl"
+          isCaptured ? "text-sm md:text-lg" : "text-4xl md:text-5xl"
         } ${isSelected ? "filter drop-shadow-lg" : ""}`}
       />
       {isSelected && (

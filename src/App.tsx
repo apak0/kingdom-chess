@@ -127,7 +127,7 @@ function App() {
         )}
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center mt-8">
+      <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8 px-2 md:px-0">
         {isMultiplayer && playerColor === "black" ? (
           <>
             <CapturedPieces pieces={capturedPieces.white} color="white" />
