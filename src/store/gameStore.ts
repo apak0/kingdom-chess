@@ -58,8 +58,31 @@ const findBestMove = (chess: Chess): string => {
 };
 
 // Socket.IO bağlantısı
-const SERVER_URL = import.meta.env.VITE_SERVER_URL || window.location.origin;
-const socket = io(SERVER_URL);
+const SERVER_URL = import.meta.env.VITE_SERVER_URL || "http://localhost:3001";
+console.log("Connecting to server:", SERVER_URL);
+
+const socket = io(SERVER_URL, {
+  transports: ["polling", "websocket"],
+  reconnection: true,
+  reconnectionAttempts: Infinity,
+  reconnectionDelay: 1000,
+  reconnectionDelayMax: 5000,
+  timeout: 20000,
+  autoConnect: true,
+  forceNew: true,
+});
+
+socket.on("connect", () => {
+  console.log("Socket bağlantısı kuruldu:", socket.id);
+});
+
+socket.on("connect_error", (error) => {
+  console.error("Socket bağlantı hatası:", error);
+});
+
+socket.on("disconnect", (reason) => {
+  console.log("Socket bağlantısı kesildi:", reason);
+});
 
 interface GameState {
   chess: Chess;

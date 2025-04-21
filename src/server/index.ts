@@ -1,3 +1,4 @@
+
 import express from "express";
 import { createServer } from "http";
 import { Server } from "socket.io";
@@ -10,12 +11,34 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 
 const app = express();
+
+// CORS middleware
+app.use((req, res, next) => {
+  res.header("Access-Control-Allow-Origin", "*");
+  res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+  res.header(
+    "Access-Control-Allow-Headers",
+    "Origin, X-Requested-With, Content-Type, Accept"
+  );
+  next();
+});
+
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
   cors: {
-    origin: "*", // In production, limit this to your client URL
+    origin: ["http://localhost:5173", "https://kingdom-chess.onrender.com/"],
     methods: ["GET", "POST"],
+    credentials: false,
+    allowedHeaders: ["Content-Type"],
   },
+  connectionStateRecovery: {
+    maxDisconnectionDuration: 2000,
+    skipMiddlewares: true,
+  },
+  transports: ["polling", "websocket"],
+  allowEIO3: true,
+  pingTimeout: 60000,
+  pingInterval: 25000,
 });
 
 // Serve static files in production
