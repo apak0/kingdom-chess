@@ -19,6 +19,7 @@ function App() {
     joinRoom,
     roomId,
     isMultiplayer,
+    playerColor,
   } = useGameStore();
 
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -127,9 +128,19 @@ function App() {
       </div>
 
       <div className="flex flex-col lg:flex-row gap-4 lg:gap-8 items-center mt-8">
-        <CapturedPieces pieces={capturedPieces.black} color="black" />
-        <Board />
-        <CapturedPieces pieces={capturedPieces.white} color="white" />
+        {isMultiplayer && playerColor === "black" ? (
+          <>
+            <CapturedPieces pieces={capturedPieces.white} color="white" />
+            <Board />
+            <CapturedPieces pieces={capturedPieces.black} color="black" />
+          </>
+        ) : (
+          <>
+            <CapturedPieces pieces={capturedPieces.black} color="black" />
+            <Board />
+            <CapturedPieces pieces={capturedPieces.white} color="white" />
+          </>
+        )}
       </div>
 
       <Modal

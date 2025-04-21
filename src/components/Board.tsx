@@ -4,15 +4,22 @@ import { Square } from "./Square";
 import { useGameStore } from "../store/gameStore";
 
 export const Board: React.FC = () => {
-  const { currentPlayer } = useGameStore();
+  const { currentPlayer, playerColor, isMultiplayer } = useGameStore();
+
+  // Tahtayı çevirmek için gereken değişkenler
+  const shouldRotateBoard = isMultiplayer && playerColor === "black";
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
   const ranks = ["8", "7", "6", "5", "4", "3", "2", "1"];
+
+  // Siyah oyuncu için sıraları ve dosyaları ters çevir
+  const displayFiles = shouldRotateBoard ? [...files].reverse() : files;
+  const displayRanks = shouldRotateBoard ? [...ranks].reverse() : ranks;
 
   return (
     <div className="relative flex flex-col">
       {/* File letters (a-h) at the top */}
-      <div className="flex ml-6 md:ml-8 mb-1">
-        {files.map((file) => (
+      <div className="flex ml-4">
+        {displayFiles.map((file) => (
           <div
             key={file}
             className="w-[40px] md:w-[92px] text-center text-sm md:text-lg text-white font-[MedievalSharp] uppercase"
@@ -25,7 +32,7 @@ export const Board: React.FC = () => {
       <div className="flex">
         {/* Rank numbers (8-1) on the left */}
         <div className="flex flex-col justify-around mr-1 md:mr-2 text-sm md:text-lg text-white font-[MedievalSharp]">
-          {ranks.map((rank) => (
+          {displayRanks.map((rank) => (
             <div key={rank} className="h-[40px] md:h-[92px] flex items-center">
               {rank}
             </div>
@@ -41,6 +48,7 @@ export const Board: React.FC = () => {
             gridTemplateColumns: "repeat(8, minmax(0, 1fr))",
             gridTemplateRows: "repeat(8, minmax(0, 1fr))",
             gap: "1px md:2px",
+            transform: shouldRotateBoard ? "rotate(180deg)" : "none",
           }}
         >
           {Array(8)
@@ -48,13 +56,27 @@ export const Board: React.FC = () => {
             .map((_, row) =>
               Array(8)
                 .fill(null)
-                .map((_, col) => (
-                  <Square
-                    key={`${row}-${col}`}
-                    position={{ x: col, y: row }}
-                    isLight={(row + col) % 2 === 0}
-                  />
-                ))
+                .map((_, col) => {
+                  // Siyah oyuncu için koordinatları ters çevir
+                  const adjustedRow = shouldRotateBoard ? 7 - row : row;
+                  const adjustedCol = shouldRotateBoard ? 7 - col : col;
+
+                  return (
+                    <div
+                      key={`${row}-${col}`}
+                      style={{
+                        transform: shouldRotateBoard
+                          ? "rotate(180deg)"
+                          : "none",
+                      }}
+                    >
+                      <Square
+                        position={{ x: adjustedCol, y: adjustedRow }}
+                        isLight={(row + col) % 2 === 0}
+                      />
+                    </div>
+                  );
+                })
             )}
         </motion.div>
       </div>

@@ -22,8 +22,10 @@ export const Piece: React.FC<PieceProps> = ({
   isSelected,
   isCaptured = false,
 }) => {
-  const { currentPlayer, isCheckmate } = useGameStore();
+  const { currentPlayer, isCheckmate, isMultiplayer, playerColor } =
+    useGameStore();
   const isCurrentPlayer = piece.color === currentPlayer;
+  const shouldRotate = isMultiplayer && playerColor === "black";
 
   const isCheckmatedKing =
     isCheckmate && piece.type === "king" && piece.color === currentPlayer;
@@ -52,6 +54,7 @@ export const Piece: React.FC<PieceProps> = ({
             : "cursor-default"
         }
       `}
+      style={{ transform: shouldRotate ? "rotate(180deg)" : "none" }}
     >
       <i
         className={`fas fa-${pieceIcon} ${
