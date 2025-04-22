@@ -8,12 +8,42 @@ import { fileURLToPath } from "url";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
 const app = express();
+// CORS middleware
+app.use((req, res, next) => {
+    const allowedOrigins = [
+        "http://localhost:5173",
+        "http://localhost:3001",
+        "https://kingdom-of-harpoon.onrender.com/",
+    ];
+    const origin = req.headers.origin;
+    if (origin && allowedOrigins.includes(origin)) {
+        res.header("Access-Control-Allow-Origin", origin);
+    }
+    res.header("Access-Control-Allow-Methods", "GET, POST, OPTIONS");
+    res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
+    res.header("Access-Control-Allow-Credentials", "true");
+    next();
+});
 const httpServer = createServer(app);
 const io = new Server(httpServer, {
     cors: {
-        origin: "*", // In production, limit this to your client URL
+        origin: [
+            "http://localhost:5173",
+            "http://localhost:3001",
+            "https://kingdom-of-harpoon.onrender.com/",
+        ],
         methods: ["GET", "POST"],
+        credentials: true,
+        allowedHeaders: ["Content-Type"],
     },
+    connectionStateRecovery: {
+        maxDisconnectionDuration: 2000,
+        skipMiddlewares: true,
+    },
+    transports: ["polling", "websocket"],
+    allowEIO3: true,
+    pingTimeout: 60000,
+    pingInterval: 25000,
 });
 // Serve static files in production
 if (process.env.NODE_ENV === "production") {
