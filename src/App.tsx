@@ -88,39 +88,37 @@ function App() {
           <div className="flex flex-col md:flex-row gap-4 justify-center mt-4">
             <button
               onClick={createRoom}
-              className="relative px-5 py-2.5 overflow-hidden font-medium text-gray-600 bg-orange-400 border border-amber-900 rounded-lg shadow-inner group"
+              className="relative px-0 py-0 sm:px-5 sm:py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
+
             >
-              <span className="absolute top-0 left-0 w-0 h-0 transition-all duration-200 border-t-2 border-amber-700 group-hover:w-full ease"></span>
-              <span className="absolute bottom-0 right-0 w-0 h-0 transition-all duration-200 border-b-2 border-amber-700 group-hover:w-full ease"></span>
-              <span className="absolute top-0 left-0 w-full h-0 transition-all duration-300 delay-200 bg-amber-700 group-hover:h-full ease"></span>
-              <span className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 delay-200 bg-amber-700 group-hover:h-full ease"></span>
-              <span className="absolute inset-0 w-full h-full duration-300 delay-300 bg-amber-700 opacity-0 group-hover:opacity-100"></span>
-              <span className="relative text-base font-semibold transition-colors duration-300 delay-200 group-hover:text-white ease">
-                Oda Oluştur
-              </span>
+              <img
+                src="/assets/create-room.png"
+                alt="Play Button"
+                width="150"
+                height="70"
+              />
             </button>
+
             <div className="flex gap-2">
               <input
                 type="text"
                 value={joinRoomId}
                 onChange={(e) => setJoinRoomId(e.target.value)}
                 placeholder="Oda Kodu"
-                className="px-4 py-2 rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20"
+                className="px-4 *: rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20"
                 maxLength={6}
               />
 
               <button
                 onClick={() => joinRoom(joinRoomId)}
-                className="relative px-5 py-2.5 overflow-hidden font-medium text-gray-600 bg-orange-400 border border-amber-900 rounded-lg shadow-inner group"
+                className="relative px-5 py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
               >
-                <span className="absolute top-0 left-0 w-0 h-0 transition-all duration-200 border-t-2 border-amber-700 group-hover:w-full ease"></span>
-                <span className="absolute bottom-0 right-0 w-0 h-0 transition-all duration-200 border-b-2 border-amber-700 group-hover:w-full ease"></span>
-                <span className="absolute top-0 left-0 w-full h-0 transition-all duration-300 delay-200 bg-amber-700 group-hover:h-full ease"></span>
-                <span className="absolute bottom-0 left-0 w-full h-0 transition-all duration-300 delay-200 bg-amber-700 group-hover:h-full ease"></span>
-                <span className="absolute inset-0 w-full h-full duration-300 delay-300 bg-amber-700 opacity-0 group-hover:opacity-100"></span>
-                <span className="relative text-base font-semibold transition-colors duration-300 delay-200 group-hover:text-white ease">
-                  Katıl
-                </span>
+                <img
+                  src="/assets/katil.png"
+                  alt="Play Button"
+                  width="100"
+                  height="30"
+                />
               </button>
             </div>
           </div>
