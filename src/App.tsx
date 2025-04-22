@@ -81,7 +81,7 @@ function App() {
           <button
             onClick={initializeBoard}
             title="Reset Game"
-            className="relative inline-flex items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-indigo-400 rounded-lg hover:bg-indigo-50 group"
+            className="relative items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-indigo-400 rounded-lg hover:bg-indigo-50 group"
           >
             <span className="absolute inset-0 border-0 group-hover:border-[25px] ease-linear duration-100 transition-all border-indigo-50 rounded-lg"></span>
             <span className="relative w-full text-base font-semibold text-left text-white transition-colors duration-200 ease-in-out group-hover:text-indigo-600">
@@ -129,6 +129,7 @@ function App() {
                 alt="Play Button"
                 width="150"
                 height="70"
+                className="rounded-lg"
               />
             </button>
 
@@ -149,8 +150,9 @@ function App() {
                 <img
                   src="/assets/katil.png"
                   alt="Play Button"
-                  width="100"
-                  height="30"
+                  width="150"
+                  height="70"
+                  className="rounded-lg"
                 />
               </button>
             </div>
