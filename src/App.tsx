@@ -31,6 +31,28 @@ function App() {
     setTimeout(() => setCopied(false), 2000);
   };
 
+  const shareToWhatsApp = () => {
+    const gameUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
+    const message = `Hadi birlikte satranç oynayalım! Bağlantıya tıklayarak odama katıl: ${gameUrl}`;
+
+    // Mobil cihaz kontrolü
+    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
+
+    if (isMobile) {
+      // Mobil cihazlar için WhatsApp uygulaması
+      window.open(
+        `whatsapp://send?text=${encodeURIComponent(message)}`,
+        "_blank"
+      );
+    } else {
+      // Masaüstü için WhatsApp Web
+      window.open(
+        `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
+        "_blank"
+      );
+    }
+  };
+
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-x-hidden"
@@ -89,7 +111,6 @@ function App() {
             <button
               onClick={createRoom}
               className="relative px-0 py-0 sm:px-5 sm:py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
-
             >
               <img
                 src="/assets/create-room.png"
@@ -135,6 +156,14 @@ function App() {
               title="Kodu Kopyala"
             >
               <Copy className="w-5 h-5" />
+            </button>
+            <button
+              onClick={shareToWhatsApp}
+              className="bg-[#25D366] text-white p-2 rounded-lg hover:opacity-90 transition-colors flex items-center gap-2 whitespace-nowrap"
+              title="WhatsApp ile Paylaş"
+            >
+              <i className="fab fa-whatsapp text-lg"></i>
+              <span className="hidden md:inline">WhatsApp'ta Paylaş</span>
             </button>
             {copied && (
               <span className="text-white text-sm">Kod kopyalandı!</span>
