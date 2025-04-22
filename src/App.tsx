@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { RotateCcw, Copy } from "lucide-react";
 import { Modal } from "./components/Modal";
@@ -24,6 +24,18 @@ function App() {
 
   const [joinRoomId, setJoinRoomId] = useState("");
   const [copied, setCopied] = useState(false);
+
+  // URL parametrelerini kontrol et
+  useEffect(() => {
+    const urlParams = new URLSearchParams(window.location.search);
+    const roomParam = urlParams.get("room");
+
+    if (roomParam && !isMultiplayer) {
+      joinRoom(roomParam);
+      // URL'i temizle
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+  }, [joinRoom, isMultiplayer]); // Gerekli bağımlılıkları ekledim
 
   const copyRoomId = () => {
     navigator.clipboard.writeText(roomId || "");
@@ -160,10 +172,10 @@ function App() {
             <button
               onClick={shareToWhatsApp}
               className="bg-[#25D366] text-white p-2 rounded-lg hover:opacity-90 transition-colors flex items-center gap-2 whitespace-nowrap"
-              title="WhatsApp ile Paylaş"
+              title="Davet Et"
             >
               <i className="fab fa-whatsapp text-lg"></i>
-              <span className="hidden md:inline">WhatsApp'ta Paylaş</span>
+              <span className="hidden md:inline">Davet Et</span>
             </button>
             {copied && (
               <span className="text-white text-sm">Kod kopyalandı!</span>
