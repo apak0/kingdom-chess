@@ -160,8 +160,8 @@ function App() {
 
         {roomId && (
           <div className="flex items-center justify-center gap-2 mt-4">
-            <div className="text-white bg-white/10 px-4 py-2 rounded-lg">
-              Oda Kodu: {roomId}
+            <div className="px-4 py-2 rounded-lg  text-center text-2xl font-[MedievalSharp] bg-white/10  text-orange-300 text bold placeholder-white/50 border border-white/20">
+              Oda Kodu: <span className="font-sans">{roomId} </span>
             </div>
             <button
               onClick={copyRoomId}

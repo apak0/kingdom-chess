@@ -433,7 +433,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         modalState: {
           isOpen: true,
           title: "✅ Oda Oluşturuldu",
-          message: `Oda kodu: ${roomId}. Rakibinizin katılmasını bekleyin.`,
+          message: `Oyun Kodu: ${roomId}. Rakibinizin katılmasını bekleyin.`,
           type: "check",
         },
       });
