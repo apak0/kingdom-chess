@@ -76,19 +76,20 @@ function App() {
         backgroundAttachment: "fixed",
       }}
     >
+      <div className="absolute top-4 right-4">
+        <button
+          onClick={initializeBoard}
+          title="Reset Game"
+          className="relative items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-indigo-400 rounded-lg hover:bg-indigo-50 group"
+        >
+          <span className="absolute inset-0 border-0 group-hover:border-[25px] ease-linear duration-100 transition-all border-indigo-50 rounded-lg"></span>
+          <span className="relative w-full text-base font-semibold text-left text-white transition-colors duration-200 ease-in-out group-hover:text-indigo-600">
+            <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
+          </span>
+        </button>
+      </div>
       <div className="relative w-full max-w-[1200px] px-2 md:px-0 z-10">
-        <div className="flex justify-between items-center w-full mb-4">
-          <button
-            onClick={initializeBoard}
-            title="Reset Game"
-            className="relative items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-indigo-400 rounded-lg hover:bg-indigo-50 group"
-          >
-            <span className="absolute inset-0 border-0 group-hover:border-[25px] ease-linear duration-100 transition-all border-indigo-50 rounded-lg"></span>
-            <span className="relative w-full text-base font-semibold text-left text-white transition-colors duration-200 ease-in-out group-hover:text-indigo-600">
-              <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
-            </span>
-          </button>
-
+        <div className="flex justify-center items-center w-full mb-4">
           <div className="flex flex-col items-center">
             <motion.div
               initial={{ opacity: 0, y: -20 }}
@@ -114,12 +115,10 @@ function App() {
               )}
             </motion.div>
           </div>
-
-          <div className="w-[48px] h-[48px]" />
         </div>
 
         {!isMultiplayer && (
-          <div className="flex flex-col md:flex-row gap-4 justify-center mt-4">
+          <div className="flex flex-col md:flex-row gap-4 justify-center mt-4 pl-12 ">
             <button
               onClick={createRoom}
               className="relative px-0 py-0 sm:px-5 sm:py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
@@ -138,14 +137,14 @@ function App() {
                 type="text"
                 value={joinRoomId}
                 onChange={(e) => setJoinRoomId(e.target.value)}
-                placeholder="Oda Kodu"
-                className="px-4 *: rounded-lg bg-white/10 text-white placeholder-white/50 border border-white/20"
+                placeholder="Kodu Girin"
+                className="rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10  text-orange-300 text bold placeholder-white/50 border border-white/20"
                 maxLength={6}
               />
 
               <button
                 onClick={() => joinRoom(joinRoomId)}
-                className="relative px-5 py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
+                className="relative  px-0 md:px-5 py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
               >
                 <img
                   src="/assets/katil.png"
