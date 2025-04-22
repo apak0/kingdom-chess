@@ -61,7 +61,7 @@ const findBestMove = (chess: Chess): string => {
 const SERVER_URL =
   import.meta.env.USE_LOCAL_SERVER === "true"
     ? import.meta.env.VITE_SERVER_URL || "http://localhost:3001"
-    : "https://kingdom-chess.onrender.com";
+    : "https://kingdom-of-harpoon.onrender.com/";
 
 console.log("Connecting to server:", SERVER_URL);
 

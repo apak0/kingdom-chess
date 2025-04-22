@@ -16,7 +16,7 @@ app.use((req, res, next) => {
   const allowedOrigins = [
     "http://localhost:5173",
     "http://localhost:3001",
-    "https://kingdom-chess.onrender.com",
+    "https://kingdom-of-harpoon.onrender.com/",
   ];
   const origin = req.headers.origin;
   if (origin && allowedOrigins.includes(origin)) {
@@ -37,7 +37,7 @@ const io = new Server(httpServer, {
     origin: [
       "http://localhost:5173",
       "http://localhost:3001",
-      "https://kingdom-chess.onrender.com",
+      "https://kingdom-of-harpoon.onrender.com/",
     ],
     methods: ["GET", "POST"],
     credentials: true,
