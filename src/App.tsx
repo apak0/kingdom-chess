@@ -118,7 +118,7 @@ function App() {
         </div>
 
         {!isMultiplayer && (
-          <div className="flex flex-col md:flex-row gap-4 justify-center mt-4 pl-12 ">
+          <div className="flex flex-col md:flex-row gap-4 justify-between mt-4 pl-12 ">
             <button
               onClick={createRoom}
               className="relative px-0 py-0 sm:px-5 sm:py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
