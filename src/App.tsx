@@ -175,26 +175,40 @@ function App() {
             className="flex items-center justify-center gap-2 mt-4"
           >
             <div className="px-4 py-2 rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10 text-orange-300 text bold placeholder-white/50 border border-white/20">
-              Oda Kodu: <span className="font-sans">{roomId} </span>
+              Oda Kodu:{" "}
+              <span className="font-sans text-red-500">{roomId} </span>
             </div>
-            <button
-              onClick={copyRoomId}
-              className="bg-[#FE7743] text-white p-2 rounded-lg hover:bg-[#FFA55D] transition-colors"
-              title="Kodu Kopyala"
-            >
-              <Copy className="w-5 h-5" />
-            </button>
-            <button
-              onClick={shareToWhatsApp}
-              className="bg-[#25D366] text-white p-2 rounded-lg hover:opacity-90 transition-colors flex items-center gap-2 whitespace-nowrap"
-              title="Davet Et"
-            >
-              <i className="fab fa-whatsapp text-lg"></i>
-              <span className="hidden md:inline">Davet Et</span>
-            </button>
-            {copied && (
-              <span className="text-white text-sm">Kod kopyalandı!</span>
-            )}
+            <div className="flex flex-col items-center gap-1">
+              <button
+                onClick={copyRoomId}
+                className="bg-[#FE7743] text-white p-2 rounded-lg hover:bg-[#FFA55D] transition-colors flex justify-center items-center whitespace-nowrap min-w-[53px]"
+                title="Kodu Kopyala"
+              >
+                <Copy size={37} />{" "}
+                {/* size değerini text-4xl ile eşdeğer olan 32'ye ayarladım */}
+                <span className="hidden md:inline ml-2">Kopyala</span>
+              </button>
+              {copied && (
+                <motion.span
+                  initial={{ opacity: 0, y: -5 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  className="text-white text-xs whitespace-nowrap absolute -bottom-4"
+                >
+                  Kopyalandı!
+                </motion.span>
+              )}
+            </div>
+
+            <div className="min-h-[53px]">
+              <button
+                onClick={shareToWhatsApp}
+                className="bg-[#25D366] text-white p-2 rounded-lg hover:opacity-90 transition-colors flex justify-center items-center whitespace-nowrap min-w-[53px]"
+                title="Davet Et"
+              >
+                <i className="fab fa-whatsapp text-4xl"></i>
+                <span className="hidden md:inline ml-2">Davet Et</span>
+              </button>
+            </div>
           </motion.div>
         )}
       </div>
