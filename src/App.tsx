@@ -118,7 +118,12 @@ function App() {
         </div>
 
         {!isMultiplayer && (
-          <div className="flex flex-col md:flex-row gap-4 justify-between mt-4 pl-12 ">
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex flex-col md:flex-row gap-4 justify-between mt-4 pl-12"
+          >
             <button
               onClick={createRoom}
               className="relative px-0 py-0 sm:px-5 sm:py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
@@ -141,7 +146,6 @@ function App() {
                   placeholder="Kodu Girin"
                   className="rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10  text-orange-300 text bold placeholder-white/50 border border-white/20 max-w-[150px] w-full min-h-[60px]"
                   maxLength={6}
-                  height={60}
                 />
               </div>
 
@@ -160,12 +164,17 @@ function App() {
                 </button>
               </div>
             </div>
-          </div>
+          </motion.div>
         )}
 
         {roomId && (
-          <div className="flex items-center justify-center gap-2 mt-4">
-            <div className="px-4 py-2 rounded-lg  text-center text-2xl font-[MedievalSharp] bg-white/10  text-orange-300 text bold placeholder-white/50 border border-white/20">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            animate={{ opacity: 1, scale: 1 }}
+            transition={{ duration: 0.5, ease: "easeOut" }}
+            className="flex items-center justify-center gap-2 mt-4"
+          >
+            <div className="px-4 py-2 rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10 text-orange-300 text bold placeholder-white/50 border border-white/20">
               Oda Kodu: <span className="font-sans">{roomId} </span>
             </div>
             <button
@@ -186,7 +195,7 @@ function App() {
             {copied && (
               <span className="text-white text-sm">Kod kopyalandı!</span>
             )}
-          </div>
+          </motion.div>
         )}
       </div>
 
