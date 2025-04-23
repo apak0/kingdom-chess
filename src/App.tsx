@@ -132,28 +132,33 @@ function App() {
               />
             </button>
 
-            <div className="flex gap-2">
-              <input
-                type="text"
-                value={joinRoomId}
-                onChange={(e) => setJoinRoomId(e.target.value)}
-                placeholder="Kodu Girin"
-                className="rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10  text-orange-300 text bold placeholder-white/50 border border-white/20"
-                maxLength={6}
-              />
-
-              <button
-                onClick={() => joinRoom(joinRoomId)}
-                className="relative  px-0 md:px-5 py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
-              >
-                <img
-                  src="/assets/katil.png"
-                  alt="Play Button"
-                  width="150"
-                  height="70"
-                  className="rounded-lg"
+            <div className="flex justify-between items-center gap-2 ">
+              <div>
+                <input
+                  type="text"
+                  value={joinRoomId}
+                  onChange={(e) => setJoinRoomId(e.target.value)}
+                  placeholder="Kodu Girin"
+                  className="rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10  text-orange-300 text bold placeholder-white/50 border border-white/20 max-w-[150px] w-full min-h-[60px]"
+                  maxLength={6}
+                  height={60}
                 />
-              </button>
+              </div>
+
+              <div className="min-w-[150px]">
+                <button
+                  onClick={() => joinRoom(joinRoomId)}
+                  className="relative  px-0 md:px-5 py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
+                >
+                  <img
+                    src="/assets/katil.png"
+                    alt="Play Button"
+                    width="150"
+                    height="70"
+                    className="rounded-lg"
+                  />
+                </button>
+              </div>
             </div>
           </div>
         )}
