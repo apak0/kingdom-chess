@@ -124,6 +124,8 @@ interface GameState {
   playerColor: PieceColor | null;
   nickname: string | null;
   opponentNickname: string | null;
+  whitePlayerNickname: string | null;
+  blackPlayerNickname: string | null;
   showNicknameModal: boolean;
   messages: Array<{
     id: string;
@@ -165,6 +167,8 @@ export const useGameStore = create<GameState>((set, get) => ({
   playerColor: null,
   nickname: null,
   opponentNickname: null,
+  whitePlayerNickname: null,
+  blackPlayerNickname: null,
   showNicknameModal: false,
   messages: [],
 
@@ -425,6 +429,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       playerColor: null,
       nickname: null,
       opponentNickname: null,
+      whitePlayerNickname: null,
+      blackPlayerNickname: null,
       showNicknameModal: false,
       messages: [],
     })),
@@ -453,11 +459,23 @@ export const useGameStore = create<GameState>((set, get) => ({
     set((state) => {
       // Nickname'i kaydet ve socket'e gönder
       socket.emit("setNickname", { roomId: state.roomId, nickname });
-      return {
-        ...state,
-        nickname,
-        showNicknameModal: false,
-      };
+
+      // Kendi rengimize göre nickname'i ayarla
+      if (state.playerColor === "white") {
+        return {
+          ...state,
+          nickname,
+          whitePlayerNickname: nickname,
+          showNicknameModal: false,
+        };
+      } else {
+        return {
+          ...state,
+          nickname,
+          blackPlayerNickname: nickname,
+          showNicknameModal: false,
+        };
+      }
     }),
 
   sendChatMessage: (text: string) => {
@@ -652,6 +670,8 @@ export const useGameStore = create<GameState>((set, get) => ({
           playerColor: null,
           nickname: null,
           opponentNickname: null,
+          whitePlayerNickname: null,
+          blackPlayerNickname: null,
           showNicknameModal: false,
           messages: [],
         });
@@ -659,10 +679,15 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     // Nickname event listener'ı
-    socket.on("nicknameSet", ({ nickname, isOpponent }) => {
+    socket.on("nicknameSet", ({ nickname, color }) => {
       set((state) => ({
         ...state,
-        opponentNickname: isOpponent ? nickname : state.opponentNickname,
+        whitePlayerNickname:
+          color === "white" ? nickname : state.whitePlayerNickname,
+        blackPlayerNickname:
+          color === "black" ? nickname : state.blackPlayerNickname,
+        opponentNickname:
+          color !== state.playerColor ? nickname : state.opponentNickname,
       }));
     });
 
@@ -853,6 +878,8 @@ export const useGameStore = create<GameState>((set, get) => ({
           playerColor: null,
           nickname: null,
           opponentNickname: null,
+          whitePlayerNickname: null,
+          blackPlayerNickname: null,
           showNicknameModal: false,
           messages: [],
         });
@@ -860,10 +887,15 @@ export const useGameStore = create<GameState>((set, get) => ({
     });
 
     // Nickname event listener'ı
-    socket.on("nicknameSet", ({ nickname, isOpponent }) => {
+    socket.on("nicknameSet", ({ nickname, color }) => {
       set((state) => ({
         ...state,
-        opponentNickname: isOpponent ? nickname : state.opponentNickname,
+        whitePlayerNickname:
+          color === "white" ? nickname : state.whitePlayerNickname,
+        blackPlayerNickname:
+          color === "black" ? nickname : state.blackPlayerNickname,
+        opponentNickname:
+          color !== state.playerColor ? nickname : state.opponentNickname,
       }));
     });
 

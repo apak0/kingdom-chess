@@ -28,6 +28,8 @@ function App() {
     opponentNickname,
     messages,
     sendChatMessage,
+    whitePlayerNickname,
+    blackPlayerNickname,
   } = useGameStore();
 
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -91,19 +93,8 @@ function App() {
         isHost={playerColor === "white"}
       />
 
-      {/* Top Bar with Reset and Chat */}
-      <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
-        {/* Chat Box - Only show in multiplayer mode */}
-        {isMultiplayer && (
-          <ChatBox
-            messages={messages}
-            onSendMessage={sendChatMessage}
-            playerNickname={nickname || ""}
-            opponentNickname={opponentNickname || ""}
-          />
-        )}
-
-        {/* Reset Button */}
+      {/* Top Bar with Reset button */}
+      <div className="fixed top-4 right-4 z-50">
         <button
           onClick={initializeBoard}
           title="Reset Game"
@@ -116,6 +107,24 @@ function App() {
         </button>
       </div>
 
+      {/* Chat Box - Only show in multiplayer mode */}
+      {isMultiplayer && (
+        <ChatBox
+          messages={messages}
+          onSendMessage={sendChatMessage}
+          playerNickname={
+            playerColor === "white"
+              ? whitePlayerNickname || ""
+              : blackPlayerNickname || ""
+          }
+          opponentNickname={
+            playerColor === "white"
+              ? blackPlayerNickname || ""
+              : whitePlayerNickname || ""
+          }
+        />
+      )}
+
       <div className="relative w-full max-w-[1200px] px-2 md:px-0 z-10">
         <div className="flex justify-center items-center w-full mb-4">
           <div className="flex flex-col items-center">
@@ -124,9 +133,14 @@ function App() {
               animate={{ opacity: 1, y: 0 }}
               className="text-center"
             >
-              <h1 className="text-2xl md:text-4xl font-[MedievalSharp] text-white mb-2">
-                KINGDOM of HARPOON
-              </h1>
+              <div className=" w-[150px] md:w-[200px]">
+                <img
+                  src="/assets/title-sign-table.png"
+                  alt="Kingdom of Harpoon"
+                  className="  "
+                />
+              </div>
+
               {isCheckmate ? (
                 <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4 font-bold">
                   Şah Mat! {currentPlayer === "white" ? "Siyah" : "Beyaz"}{" "}
@@ -137,9 +151,7 @@ function App() {
                   Pat! Berabere!
                 </p>
               ) : (
-                <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4">
-                  Sıra: {currentPlayer === "white" ? "⚪ Beyaz" : "⚫ Siyah"}
-                </p>
+                <p className=""></p>
               )}
             </motion.div>
           </div>

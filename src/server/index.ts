@@ -130,22 +130,20 @@ io.on("connection", (socket) => {
     if (room) {
       if (room.players.white?.id === socket.id) {
         room.players.white.nickname = nickname;
-        // Rakibe bildir
-        if (room.players.black) {
-          io.to(room.players.black.id).emit("nicknameSet", {
-            nickname,
-            isOpponent: true,
-          });
-        }
+        // Hem kendimize hem de rakibe nickname'i gönder
+        io.to(roomId).emit("nicknameSet", {
+          nickname,
+          isOpponent: false,
+          color: "white",
+        });
       } else if (room.players.black?.id === socket.id) {
         room.players.black.nickname = nickname;
-        // Rakibe bildir
-        if (room.players.white) {
-          io.to(room.players.white.id).emit("nicknameSet", {
-            nickname,
-            isOpponent: true,
-          });
-        }
+        // Hem kendimize hem de rakibe nickname'i gönder
+        io.to(roomId).emit("nicknameSet", {
+          nickname,
+          isOpponent: false,
+          color: "black",
+        });
       }
     }
   });
