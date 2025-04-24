@@ -77,13 +77,14 @@ function App() {
 
   return (
     <div
-      className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-x-hidden"
+      className="min-h-screen flex flex-col items-center justify-center  p-4 md:p-8 relative overflow-x-hidden"
       style={{
         backgroundImage: `linear-gradient(rgba(0, 0, 0, 0.6), rgba(0, 0, 0, 0.6)), url("https://i.hizliresim.com/t7u9qaj.jpg")`,
         backgroundSize: "cover",
         backgroundPosition: "center",
         backgroundRepeat: "no-repeat",
         backgroundAttachment: "fixed",
+        paddingBottom: "200px",
       }}
     >
       {/* Nickname Modal */}

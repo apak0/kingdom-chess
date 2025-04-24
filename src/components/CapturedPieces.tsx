@@ -16,7 +16,7 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
     <motion.div
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
-      className="bg-[#6B4423] p-1.5 rounded-lg h-[80px] w-[320px] md:w-[600px] md:h-[45px] md:p-2 border-2 border-[#4A3728] max-w-[95vw]"
+      className="bg-[#6B4423] p-1.5 rounded-lg h-[80px] w-[320px] md:w-[600px] md:h-[45px] md:p-2 border-2 border-[#4A3728] max-w-[95vw] "
     >
       <div className="flex flex-wrap gap-0.5 md:gap-1 items-start content-start h-full">
         {pieces.map((piece, index) => (
