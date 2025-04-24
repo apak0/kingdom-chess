@@ -4,6 +4,8 @@ import { RotateCcw, Copy } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
+import { NicknameModal } from "./components/NicknameModal";
+import { ChatBox } from "./components/ChatBox";
 import { useGameStore } from "./store/gameStore";
 
 function App() {
@@ -20,6 +22,12 @@ function App() {
     roomId,
     isMultiplayer,
     playerColor,
+    showNicknameModal,
+    setNickname,
+    nickname,
+    opponentNickname,
+    messages,
+    sendChatMessage,
   } = useGameStore();
 
   const [joinRoomId, setJoinRoomId] = useState("");
@@ -76,7 +84,26 @@ function App() {
         backgroundAttachment: "fixed",
       }}
     >
-      <div className="absolute top-4 right-4">
+      {/* Nickname Modal */}
+      <NicknameModal
+        isOpen={showNicknameModal}
+        onSubmit={setNickname}
+        isHost={playerColor === "white"}
+      />
+
+      {/* Top Bar with Reset and Chat */}
+      <div className="fixed top-4 right-4 flex items-center gap-4 z-50">
+        {/* Chat Box - Only show in multiplayer mode */}
+        {isMultiplayer && (
+          <ChatBox
+            messages={messages}
+            onSendMessage={sendChatMessage}
+            playerNickname={nickname || ""}
+            opponentNickname={opponentNickname || ""}
+          />
+        )}
+
+        {/* Reset Button */}
         <button
           onClick={initializeBoard}
           title="Reset Game"
@@ -88,6 +115,7 @@ function App() {
           </span>
         </button>
       </div>
+
       <div className="relative w-full max-w-[1200px] px-2 md:px-0 z-10">
         <div className="flex justify-center items-center w-full mb-4">
           <div className="flex flex-col items-center">

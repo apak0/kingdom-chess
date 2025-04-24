@@ -69,10 +69,22 @@ if (process.env.NODE_ENV === "production") {
 interface GameRoom {
   id: string;
   players: {
-    white?: string;
-    black?: string;
+    white?: {
+      id: string;
+      nickname?: string;
+    };
+    black?: {
+      id: string;
+      nickname?: string;
+    };
   };
   moves: any[];
+  messages: Array<{
+    id: string;
+    sender: string;
+    text: string;
+    timestamp: number;
+  }>;
 }
 
 io.engine.on("headers", (headers: any) => {
@@ -87,8 +99,9 @@ io.on("connection", (socket) => {
     const roomId = uuidv4().substring(0, 6).toUpperCase();
     gameRooms.set(roomId, {
       id: roomId,
-      players: { white: socket.id },
+      players: { white: { id: socket.id } },
       moves: [],
+      messages: [],
     });
     socket.join(roomId);
     socket.emit("roomCreated", roomId);
@@ -98,16 +111,52 @@ io.on("connection", (socket) => {
   socket.on("joinRoom", (roomId: string) => {
     const room = gameRooms.get(roomId);
     if (room && !room.players.black) {
-      room.players.black = socket.id;
+      room.players.black = { id: socket.id };
       socket.join(roomId);
       socket.emit("joinedRoom", roomId);
       io.to(roomId).emit("gameStart", {
-        white: room.players.white,
-        black: room.players.black,
+        white: room.players.white?.id,
+        black: room.players.black.id,
       });
       console.log("Player joined room:", roomId);
     } else {
       socket.emit("joinError", "Oda bulunamadı veya dolu");
+    }
+  });
+
+  // Nickname ayarlama eventi
+  socket.on("setNickname", ({ roomId, nickname }) => {
+    const room = gameRooms.get(roomId);
+    if (room) {
+      if (room.players.white?.id === socket.id) {
+        room.players.white.nickname = nickname;
+        // Rakibe bildir
+        if (room.players.black) {
+          io.to(room.players.black.id).emit("nicknameSet", {
+            nickname,
+            isOpponent: true,
+          });
+        }
+      } else if (room.players.black?.id === socket.id) {
+        room.players.black.nickname = nickname;
+        // Rakibe bildir
+        if (room.players.white) {
+          io.to(room.players.white.id).emit("nicknameSet", {
+            nickname,
+            isOpponent: true,
+          });
+        }
+      }
+    }
+  });
+
+  // Chat mesajı eventi
+  socket.on("chatMessage", ({ roomId, message }) => {
+    const room = gameRooms.get(roomId);
+    if (room) {
+      room.messages.push(message);
+      // Mesajı odadaki diğer oyuncuya ilet
+      socket.to(roomId).emit("chatMessage", message);
     }
   });
 
@@ -123,8 +172,8 @@ io.on("connection", (socket) => {
   socket.on("disconnect", () => {
     gameRooms.forEach((room, roomId) => {
       if (
-        room.players.white === socket.id ||
-        room.players.black === socket.id
+        room.players.white?.id === socket.id ||
+        room.players.black?.id === socket.id
       ) {
         io.to(roomId).emit("playerLeft");
         gameRooms.delete(roomId);

@@ -7,8 +7,18 @@
   scrollbar-color: #deb887 #8b4513;
 }
 
-.custom-scrollbar::-webkit-scrollbar {
-  width: 8px;
+/* Mobil cihazlar için daha ince scrollbar */
+@media (max-width: 640px) {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 4px;
+  }
+}
+
+/* Tablet ve masaüstü için normal scrollbar */
+@media (min-width: 641px) {
+  .custom-scrollbar::-webkit-scrollbar {
+    width: 8px;
+  }
 }
 
 .custom-scrollbar::-webkit-scrollbar-track {
@@ -20,4 +30,11 @@
   background-color: #deb887;
   border-radius: 4px;
   border: 2px solid #8b4513;
+}
+
+/* Mobil cihazlar için daha ince border */
+@media (max-width: 640px) {
+  .custom-scrollbar::-webkit-scrollbar-thumb {
+    border: 1px solid #8b4513;
+  }
 }

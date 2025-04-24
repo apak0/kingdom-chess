@@ -3,6 +3,19 @@ import { Chess, Square as ChessSquare } from "chess.js";
 import { io } from "socket.io-client";
 import { Piece as PieceType, PieceColor, Position } from "../types";
 
+// Sound utilities
+const playCaptureSound = () => {
+  const audio = new Audio("/assets/capture.mp3");
+  audio.volume = 0.5;
+  audio.play().catch((err) => console.error("Ses çalma hatası:", err));
+};
+
+const playMoveSound = () => {
+  const audio = new Audio("/assets/move-self.mp3");
+  audio.volume = 0.5;
+  audio.play().catch((err) => console.error("Ses çalma hatası:", err));
+};
+
 // Yardımcı fonksiyonlar
 const convertToChessNotation = (pos: Position): string => {
   const files = ["a", "b", "c", "d", "e", "f", "g", "h"];
@@ -109,6 +122,15 @@ interface GameState {
   roomId: string | null;
   isMultiplayer: boolean;
   playerColor: PieceColor | null;
+  nickname: string | null;
+  opponentNickname: string | null;
+  showNicknameModal: boolean;
+  messages: Array<{
+    id: string;
+    sender: string;
+    text: string;
+    timestamp: number;
+  }>;
   selectPiece: (position: Position) => void;
   movePiece: (from: Position, to: Position) => void;
   initializeBoard: () => void;
@@ -116,6 +138,8 @@ interface GameState {
   closeModal: () => void;
   createRoom: () => void;
   joinRoom: (roomId: string) => void;
+  setNickname: (nickname: string) => void;
+  sendChatMessage: (text: string) => void;
 }
 
 export const useGameStore = create<GameState>((set, get) => ({
@@ -139,6 +163,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   roomId: null,
   isMultiplayer: false,
   playerColor: null,
+  nickname: null,
+  opponentNickname: null,
+  showNicknameModal: false,
+  messages: [],
 
   selectPiece: (position) =>
     set((state) => {
@@ -219,6 +247,13 @@ export const useGameStore = create<GameState>((set, get) => ({
         if (!moveResult) {
           console.log("Geçersiz hamle:", from, "->", to);
           return state;
+        }
+
+        // Ses efektlerini çal
+        if (moveResult.captured) {
+          playCaptureSound();
+        } else {
+          playMoveSound();
         }
 
         // Tahtayı ve yakalanan taşları güncelle
@@ -302,6 +337,13 @@ export const useGameStore = create<GameState>((set, get) => ({
               const aiMoveResult = state.chess.move(bestMove);
               const aiBoard = convertBoardFromChess(state.chess);
 
+              // AI hamlesi için ses efekti
+              if (aiMoveResult.captured) {
+                playCaptureSound();
+              } else {
+                playMoveSound();
+              }
+
               if (aiMoveResult.captured) {
                 const capturedType = pieceTypeMap[aiMoveResult.captured];
                 const capturedPiece = {
@@ -381,6 +423,10 @@ export const useGameStore = create<GameState>((set, get) => ({
       roomId: null,
       isMultiplayer: false,
       playerColor: null,
+      nickname: null,
+      opponentNickname: null,
+      showNicknameModal: false,
+      messages: [],
     })),
 
   isValidMove: (from, to) => {
@@ -402,6 +448,41 @@ export const useGameStore = create<GameState>((set, get) => ({
       ...state,
       modalState: { ...state.modalState, isOpen: false },
     })),
+
+  setNickname: (nickname: string) =>
+    set((state) => {
+      // Nickname'i kaydet ve socket'e gönder
+      socket.emit("setNickname", { roomId: state.roomId, nickname });
+      return {
+        ...state,
+        nickname,
+        showNicknameModal: false,
+      };
+    }),
+
+  sendChatMessage: (text: string) => {
+    const state = get();
+    if (!state.roomId || !state.nickname) return;
+
+    const message = {
+      id: crypto.randomUUID(),
+      sender: state.nickname,
+      text,
+      timestamp: Date.now(),
+    };
+
+    // Mesajı socket üzerinden gönder
+    socket.emit("chatMessage", {
+      roomId: state.roomId,
+      message,
+    });
+
+    // Mesajı local state'e ekle
+    set((state) => ({
+      ...state,
+      messages: [...state.messages, message],
+    }));
+  },
 
   createRoom: () => {
     // Önceki event listener'ları temizle
@@ -436,6 +517,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           message: `Oyun Kodu: ${roomId}. Rakibinizin katılmasını bekleyin.`,
           type: "check",
         },
+        showNicknameModal: true,
       });
       console.log("Oda oluşturuldu:", roomId);
     });
@@ -459,6 +541,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       try {
         const moveResult = state.chess.move(move);
         if (moveResult) {
+          // Karşı oyuncunun hamlesi için ses efekti
+          if (moveResult.captured) {
+            playCaptureSound();
+          } else {
+            playMoveSound();
+          }
+
           const newBoard = convertBoardFromChess(state.chess);
           const newCapturedPieces = { ...state.capturedPieces };
 
@@ -552,8 +641,28 @@ export const useGameStore = create<GameState>((set, get) => ({
           roomId: null,
           isMultiplayer: false,
           playerColor: null,
+          nickname: null,
+          opponentNickname: null,
+          showNicknameModal: false,
+          messages: [],
         });
       }, 3000);
+    });
+
+    // Nickname event listener'ını ekle
+    socket.on("nicknameSet", ({ nickname, isOpponent }) => {
+      set((state) => ({
+        ...state,
+        opponentNickname: isOpponent ? nickname : state.opponentNickname,
+      }));
+    });
+
+    // Chat mesajları için listener ekle
+    socket.on("chatMessage", (message) => {
+      set((state) => ({
+        ...state,
+        messages: [...state.messages, message],
+      }));
     });
   },
 
@@ -591,6 +700,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           message: "Siyah taş olarak oynuyorsunuz. Beyazın hamlesini bekleyin.",
           type: "check",
         },
+        showNicknameModal: true,
       });
       console.log("Odaya katılındı:", roomId);
     });
@@ -614,6 +724,13 @@ export const useGameStore = create<GameState>((set, get) => ({
       try {
         const moveResult = state.chess.move(move);
         if (moveResult) {
+          // Karşı oyuncunun hamlesi için ses efekti
+          if (moveResult.captured) {
+            playCaptureSound();
+          } else {
+            playMoveSound();
+          }
+
           const newBoard = convertBoardFromChess(state.chess);
           const newCapturedPieces = { ...state.capturedPieces };
 
@@ -707,8 +824,27 @@ export const useGameStore = create<GameState>((set, get) => ({
           roomId: null,
           isMultiplayer: false,
           playerColor: null,
+          nickname: null,
+          opponentNickname: null,
+          showNicknameModal: false,
+          messages: [],
         });
       }, 3000);
+    });
+
+    // Nickname ve chat listener'larını ekle
+    socket.on("nicknameSet", ({ nickname, isOpponent }) => {
+      set((state) => ({
+        ...state,
+        opponentNickname: isOpponent ? nickname : state.opponentNickname,
+      }));
+    });
+
+    socket.on("chatMessage", (message) => {
+      set((state) => ({
+        ...state,
+        messages: [...state.messages, message],
+      }));
     });
   },
 }));
