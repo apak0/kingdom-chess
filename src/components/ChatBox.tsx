@@ -50,6 +50,34 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
     }
   };
 
+  // Mesajları gruplara ayır ve son mesajı işaretle
+  const groupedMessages = messages.reduce(
+    (groups: Message[][], message, index) => {
+      if (index === 0) {
+        groups.push([{ ...message, isLastInGroup: true }]);
+        return groups;
+      }
+
+      const lastGroup = groups[groups.length - 1];
+      const lastMessage = lastGroup[lastGroup.length - 1];
+
+      if (lastMessage.sender === message.sender) {
+        // Son mesajın isLastInGroup özelliğini false yap
+        lastGroup[lastGroup.length - 1] = {
+          ...lastMessage,
+          isLastInGroup: false,
+        };
+        // Yeni mesajı ekle ve son mesaj olarak işaretle
+        lastGroup.push({ ...message, isLastInGroup: true });
+      } else {
+        groups.push([{ ...message, isLastInGroup: true }]);
+      }
+
+      return groups;
+    },
+    []
+  );
+
   return (
     <>
       {/* Chat İkonu */}
@@ -88,31 +116,37 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
             {/* Mesajlar Alanı */}
             <div className="flex-1 overflow-y-auto p-2 space-y-2 custom-scrollbar min-h-0">
-              {messages.map((message) => (
-                <div
-                  key={message.id}
-                  className={`flex flex-col ${
-                    message.sender === playerNickname
-                      ? "items-end"
-                      : "items-start"
-                  }`}
-                >
-                  <div
-                    className={`max-w-[80%] p-2 rounded-lg ${
-                      message.sender === playerNickname
-                        ? "bg-[#8B5E34] ml-auto"
-                        : "bg-[#6B4423]"
-                    }`}
-                  >
-                    <p className="text-xs sm:text-sm font-[MedievalSharp] text-[#DEB887] break-words">
-                      {message.text}
-                    </p>
-                  </div>
-                  <span className="text-[10px] sm:text-xs text-[#DEB887]/60 mt-0.5">
-                    {message.sender === playerNickname
-                      ? "Sen"
-                      : opponentNickname}
-                  </span>
+              {groupedMessages.map((group, groupIndex) => (
+                <div key={groupIndex} className="space-y-1">
+                  {group.map((message, messageIndex) => (
+                    <div
+                      key={message.id}
+                      className={`flex flex-col ${
+                        message.sender === playerNickname
+                          ? "items-end"
+                          : "items-start"
+                      }`}
+                    >
+                      <div
+                        className={`max-w-[80%] p-2 rounded-lg ${
+                          message.sender === playerNickname
+                            ? "bg-[#8B5E34] ml-auto"
+                            : "bg-[#6B4423]"
+                        }`}
+                      >
+                        <p className="text-xs sm:text-sm font-[MedievalSharp] text-[#DEB887] break-words">
+                          {message.text}
+                        </p>
+                      </div>
+                      {message.isLastInGroup && (
+                        <span className="text-[10px] sm:text-xs text-[#DEB887]/60 mt-0.5">
+                          {message.sender === playerNickname
+                            ? "Sen"
+                            : opponentNickname}
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
               ))}
               <div ref={messagesEndRef} />
