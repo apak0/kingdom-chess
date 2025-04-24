@@ -23,14 +23,32 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
+  const [unreadCount, setUnreadCount] = useState(0);
   const chatContainerRef = useRef<HTMLDivElement>(null);
+  const lastMessageCountRef = useRef(messages.length);
 
   useEffect(() => {
-    if (chatContainerRef.current) {
+    // If there are new messages and chat is closed, increment unread count
+    if (!isOpen && messages.length > lastMessageCountRef.current) {
+      setUnreadCount(
+        (prev) => prev + (messages.length - lastMessageCountRef.current)
+      );
+    }
+    lastMessageCountRef.current = messages.length;
+  }, [messages, isOpen]);
+
+  useEffect(() => {
+    if (isOpen) {
+      setUnreadCount(0); // Reset unread count when chat is opened
+    }
+  }, [isOpen]);
+
+  useEffect(() => {
+    if (chatContainerRef.current && isOpen) {
       chatContainerRef.current.scrollTop =
         chatContainerRef.current.scrollHeight;
     }
-  }, [messages]);
+  }, [messages, isOpen]);
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
@@ -54,13 +72,18 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
   return (
     <>
-      <div className="fixed top-4 left-4 z-50 ">
+      <div className="fixed top-4 left-4 z-50">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="bg-[#6B4423] text-[#DEB887] p-2 rounded-full hover:bg-[#8B5E34] transition-colors"
+          className="relative bg-[#6B4423] text-[#DEB887] p-2 rounded-full hover:bg-[#8B5E34] transition-colors"
           title={isOpen ? "Sohbeti Kapat" : "Sohbeti Aç"}
         >
           <MessageCircle size={37} />
+          {unreadCount > 0 && !isOpen && (
+            <div className="absolute -top-1 -right-1 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold animate-pulse">
+              {unreadCount}
+            </div>
+          )}
         </button>
       </div>
 
@@ -99,8 +122,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                 key={group[0].id}
                 className={`flex flex-col ${
                   group[0].sender === playerNickname
-                    ? "items-start"
-                    : "items-end"
+                    ? "items-end"
+                    : "items-start"
                 }`}
               >
                 {group.map((msg, msgIndex) => (
@@ -111,11 +134,19 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                     }`}
                   >
                     <div
-                      className={`px-3 py-2 rounded-lg max-w-[80%] break-words ${
+                      className={`inline-block px-3 py-2 rounded-lg ${
                         msg.sender === playerNickname
-                          ? "bg-[#8B5E34] text-[#DEB887]"
-                          : "bg-[#6B4423] text-[#DEB887]"
+                          ? "bg-[#8B5E34] text-[#DEB887] rounded-tr-none"
+                          : "bg-[#6B4423] text-[#DEB887] rounded-tl-none"
                       }`}
+                      style={{
+                        maxWidth: "85%",
+                        width: "auto",
+                        whiteSpace: "normal",
+                        wordWrap: "break-word",
+                        wordBreak: "keep-all",
+                        overflowWrap: "break-word",
+                      }}
                     >
                       {msg.text}
                     </div>
