@@ -465,15 +465,15 @@ export const useGameStore = create<GameState>((set, get) => ({
         return {
           ...state,
           nickname,
-          whitePlayerNickname: nickname,
           showNicknameModal: false,
+          whitePlayerNickname: nickname,
         };
       } else {
         return {
           ...state,
           nickname,
-          blackPlayerNickname: nickname,
           showNicknameModal: false,
+          blackPlayerNickname: nickname,
         };
       }
     }),

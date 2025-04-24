@@ -11,6 +11,7 @@ interface ChatBoxProps {
   onSendMessage: (text: string) => void;
   playerNickname: string;
   opponentNickname: string;
+  playerColor?: "white" | "black"; // Adding playerColor prop
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = ({
@@ -18,6 +19,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   onSendMessage,
   playerNickname,
   opponentNickname,
+  playerColor = "white", // Default to white if not specified
 }) => {
   const [isOpen, setIsOpen] = useState(false);
   const [message, setMessage] = useState("");
@@ -41,11 +43,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   // Mesajları gruplandır
   const groupedMessages = messages.reduce<Array<Array<(typeof messages)[0]>>>(
     (groups, message, index) => {
-      // Eğer bu ilk mesajsa veya önceki mesaj farklı bir göndericiden geldiyse yeni grup oluştur
       if (index === 0 || messages[index - 1].sender !== message.sender) {
         groups.push([message]);
       } else {
-        // Aynı göndericiden gelen mesajı son gruba ekle
         groups[groups.length - 1].push(message);
       }
       return groups;
@@ -56,10 +56,10 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   return (
     <>
       {/* Chat icon fixed to top left */}
-      <div className="fixed top-4 left-4 z-50">
+      <div className="fixed top-4 left-4 z-50 ">
         <button
           onClick={() => setIsOpen(!isOpen)}
-          className="bg-[#6B4423] text-[#DEB887] p-2 rounded-lg hover:bg-[#8B5E34] transition-colors"
+          className="bg-[#6B4423] text-[#DEB887] p-2 rounded-full hover:bg-[#8B5E34] transition-colors"
           title={isOpen ? "Sohbeti Kapat" : "Sohbeti Aç"}
         >
           <MessageCircle size={37} />
@@ -72,10 +72,17 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
           {/* Oyuncu bilgileri */}
           <div className="p-2 sm:p-3 border-b border-[#8B5E34] bg-[#3D2E22]">
             <div className="flex justify-between items-center text-xs sm:text-sm">
-              <div className="text-[#DEB887]">⚪ {playerNickname || "..."}</div>
-              <div className="text-[#DEB887]">
-                ⚫ {opponentNickname || "..."}
-              </div>
+              {playerColor === "white" ? (
+                <>
+                  <div className="text-[#DEB887]">⚪ {playerNickname}</div>
+                  <div className="text-[#DEB887]">⚫ {opponentNickname}</div>
+                </>
+              ) : (
+                <>
+                  <div className="text-[#DEB887]">⚫ {playerNickname}</div>
+                  <div className="text-[#DEB887]">⚪ {opponentNickname}</div>
+                </>
+              )}
             </div>
           </div>
 
@@ -89,8 +96,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                 key={group[0].id}
                 className={`flex flex-col ${
                   group[0].sender === playerNickname
-                    ? "items-end"
-                    : "items-start"
+                    ? "items-start"
+                    : "items-end"
                 }`}
               >
                 {group.map((msg, msgIndex) => (

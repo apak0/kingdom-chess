@@ -112,16 +112,9 @@ function App() {
         <ChatBox
           messages={messages}
           onSendMessage={sendChatMessage}
-          playerNickname={
-            playerColor === "white"
-              ? whitePlayerNickname || ""
-              : blackPlayerNickname || ""
-          }
-          opponentNickname={
-            playerColor === "white"
-              ? blackPlayerNickname || ""
-              : whitePlayerNickname || ""
-          }
+          playerNickname={nickname || "..."}
+          opponentNickname={opponentNickname || "..."}
+          playerColor={playerColor || "white"}
         />
       )}
 

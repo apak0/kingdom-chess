@@ -114,6 +114,15 @@ io.on("connection", (socket) => {
       room.players.black = { id: socket.id };
       socket.join(roomId);
       socket.emit("joinedRoom", roomId);
+
+      // Beyaz oyuncunun nickname'i varsa, yeni katılan oyuncuya gönder
+      if (room.players.white?.nickname) {
+        socket.emit("nicknameSet", {
+          nickname: room.players.white.nickname,
+          color: "white",
+        });
+      }
+
       io.to(roomId).emit("gameStart", {
         white: room.players.white?.id,
         black: room.players.black.id,
@@ -130,18 +139,14 @@ io.on("connection", (socket) => {
     if (room) {
       if (room.players.white?.id === socket.id) {
         room.players.white.nickname = nickname;
-        // Hem kendimize hem de rakibe nickname'i gönder
         io.to(roomId).emit("nicknameSet", {
           nickname,
-          isOpponent: false,
           color: "white",
         });
       } else if (room.players.black?.id === socket.id) {
         room.players.black.nickname = nickname;
-        // Hem kendimize hem de rakibe nickname'i gönder
         io.to(roomId).emit("nicknameSet", {
           nickname,
-          isOpponent: false,
           color: "black",
         });
       }
