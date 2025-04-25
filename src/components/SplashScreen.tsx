@@ -32,11 +32,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             src="/assets/title-sign-table.png"
             alt="Kingdom of Harpoon"
             initial={{
-              scale: 15,
+              scale: 25,
               opacity: 0,
             }}
             animate={{
-              scale: 1,
+              scale: 2,
               opacity: 1,
             }}  
             exit={{
