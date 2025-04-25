@@ -25,7 +25,8 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
           initial={{ opacity: 1 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          className="fixed inset-0 bg-black flex items-center justify-center z-50"
+          transition={{ duration: 0.3 }}
+          className="fixed inset-0 z-50 flex items-center justify-center"
         >
           <motion.img
             src="/assets/title-sign-table.png"
@@ -35,11 +36,11 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
               opacity: 0,
             }}
             animate={{
-              scale: 3,
+              scale: 1,
               opacity: 1,
             }}
             exit={{
-              scale: 0.8,
+              scale: 0.1,
               opacity: 0,
             }}
             transition={{

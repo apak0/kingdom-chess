@@ -20,7 +20,6 @@ export const NicknameModal: React.FC<NicknameModalProps> = ({
       onSubmit(nickname.trim());
     }
   };
-
   return (
     <AnimatePresence>
       {isOpen && (
@@ -36,16 +35,16 @@ export const NicknameModal: React.FC<NicknameModalProps> = ({
             exit={{ scale: 0.5, opacity: 0 }}
             className="bg-[#4A3728] text-center rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl border-2 border-[#8B5E34]"
           >
-            {/* <h2 className="text-2xl font-[MedievalSharp] text-[#DEB887] mb-4">
+            <h2 className="text-2xl font-[MedievalSharp] text-[#DEB887] mb-4">
               {isHost ? "Oyunu Başlat" : "Oyuna Katıl"}
-            </h2> */}
+            </h2>
             <form onSubmit={handleSubmit} className="space-y-4">
               <div>
                 <input
                   type="text"
                   value={nickname}
                   onChange={(e) => setNickname(e.target.value)}
-                  placeholder="Adınız..."
+                  placeholder="Takma Adınız"
                   maxLength={20}
                   className="w-full px-4 py-2 rounded bg-[#6B4423] text-[#DEB887] placeholder-[#DEB887]/50 border border-[#8B5E34] focus:outline-none focus:ring-2 focus:ring-[#DEB887]"
                 />
