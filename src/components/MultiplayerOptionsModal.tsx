@@ -56,7 +56,7 @@ export const MultiplayerOptionsModal: React.FC<
               animate={{ scale: 1, opacity: 1 }}
               exit={{ scale: 0.5, opacity: 0 }}
               transition={{ type: "spring", damping: 20, stiffness: 300 }}
-              className="relative  text-center rounded-lg p-8 max-w-2xl w-full mx-4  "
+              className="relative bg-[#4A3728]/80 backdrop-blur-sm text-center rounded-lg p-8 max-w-2xl w-full mx-4 shadow-xl border-2 border-[#8B5E34]"
             >
               <div className="flex flex-col md:flex-row gap-6 items-center justify-center">
                 <motion.button
