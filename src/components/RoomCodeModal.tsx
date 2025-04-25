@@ -23,13 +23,8 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
 
   const shareToWhatsApp = () => {
     const gameUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-    const message = `Hadi birlikte satranç oynayalım! Bağlantıya tıklayarak odama katıl: ${gameUrl}`;
-
-    // Direkt web.whatsapp.com'a yönlendir
-    window.open(
-      `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+    const message = `Hadi birlikte satranç oynayalım! ${gameUrl}`;
+    window.open(`https://wa.me/?text=${encodeURIComponent(message)}`, "_blank");
   };
 
   return (
