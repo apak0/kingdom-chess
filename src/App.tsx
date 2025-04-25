@@ -109,13 +109,13 @@ function App() {
 
       {!showSplash && !showGameModeSelect && !showMultiplayerOptions && (
         <div
-          className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-x-hidden"
+          className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-x-hidden"
           style={{
             paddingBottom: "200px",
           }}
         >
-          {/* Navigation Buttons */}
-          <div className="fixed top-4 left-0 right-0 px-4 flex justify-between z-50">
+          {/* Navigation Buttons and Title */}
+          <div className="w-full px-4 flex justify-evenly items-center z-50 mb-8">
             {/* Home Button */}
             <motion.button
               onClick={handleHomeClick}
@@ -128,6 +128,15 @@ function App() {
                 className="w-[100px] md:w-[180px] rounded-lg"
               />
             </motion.button>
+
+            {/* Kingdom of Harpoon Title */}
+            <div className="w-[150px] md:w-[200px]">
+              <img
+                src="/assets/title-sign-table.png"
+                alt="Kingdom of Harpoon"
+                className=""
+              />
+            </div>
 
             {/* Reset Button */}
             <motion.button
@@ -166,22 +175,14 @@ function App() {
             />
           )}
 
-          <div className="relative w-full max-w-[1200px] px-2 md:px-0 z-10">
-            <div className="flex justify-center items-center w-full mb-4">
-              <div className="flex flex-col items-center">
+          <div className="w-full flex flex-col items-center">
+            <div className="w-full max-w-[1200px] flex flex-col items-center px-2 md:px-0 z-10">
+              <div className="w-full flex justify-center items-center mb-4">
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
                   animate={{ opacity: 1, y: 0 }}
                   className="text-center"
                 >
-                  <div className="w-[150px] md:w-[200px]">
-                    <img
-                      src="/assets/title-sign-table.png"
-                      alt="Kingdom of Harpoon"
-                      className=""
-                    />
-                  </div>
-
                   {isCheckmate ? (
                     <p className="text-base md:text-lg font-[MedievalSharp] text-white mb-4 font-bold">
                       Şah Mat! {currentPlayer === "white" ? "Siyah" : "Beyaz"}{" "}
@@ -196,32 +197,44 @@ function App() {
                   )}
                 </motion.div>
               </div>
-            </div>
 
-            <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8 px-2 md:px-0">
-              {isMultiplayer && playerColor === "black" ? (
-                <>
-                  <CapturedPieces pieces={capturedPieces.white} color="white" />
-                  <Board />
-                  <CapturedPieces pieces={capturedPieces.black} color="black" />
-                </>
-              ) : (
-                <>
-                  <CapturedPieces pieces={capturedPieces.black} color="black" />
-                  <Board />
-                  <CapturedPieces pieces={capturedPieces.white} color="white" />
-                </>
-              )}
+              <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8">
+                {isMultiplayer && playerColor === "black" ? (
+                  <>
+                    <CapturedPieces
+                      pieces={capturedPieces.white}
+                      color="white"
+                    />
+                    <Board />
+                    <CapturedPieces
+                      pieces={capturedPieces.black}
+                      color="black"
+                    />
+                  </>
+                ) : (
+                  <>
+                    <CapturedPieces
+                      pieces={capturedPieces.black}
+                      color="black"
+                    />
+                    <Board />
+                    <CapturedPieces
+                      pieces={capturedPieces.white}
+                      color="white"
+                    />
+                  </>
+                )}
+              </div>
             </div>
-
-            <Modal
-              isOpen={modalState.isOpen}
-              title={modalState.title}
-              message={modalState.message}
-              type={modalState.type}
-              onClose={closeModal}
-            />
           </div>
+
+          <Modal
+            isOpen={modalState.isOpen}
+            title={modalState.title}
+            message={modalState.message}
+            type={modalState.type}
+            onClose={closeModal}
+          />
         </div>
       )}
 
