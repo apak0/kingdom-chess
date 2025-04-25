@@ -25,19 +25,11 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
     const gameUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
     const message = `Hadi birlikte satranç oynayalım! Bağlantıya tıklayarak odama katıl: ${gameUrl}`;
 
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      window.open(
-        `whatsapp://send?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
-    } else {
-      window.open(
-        `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
-    }
+    // Direkt web.whatsapp.com'a yönlendir
+    window.open(
+      `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
+      "_blank"
+    );
   };
 
   return (
