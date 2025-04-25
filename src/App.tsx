@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { RotateCcw } from "lucide-react";
+import { RotateCcw, Home } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
@@ -38,7 +38,6 @@ function App() {
   const [showGameModeSelect, setShowGameModeSelect] = useState(false);
   const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
   const [showRoomCodeModal, setShowRoomCodeModal] = useState(false);
-  const [joinRoomId, setJoinRoomId] = useState("");
 
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
@@ -84,6 +83,10 @@ function App() {
     }
   };
 
+  const handleHomeClick = () => {
+    setShowGameModeSelect(true);
+  };
+
   if (showSplash) {
     return <SplashScreen onAnimationComplete={handleSplashComplete} />;
   }
@@ -113,20 +116,21 @@ function App() {
         paddingBottom: "200px",
       }}
     >
-      {/* Modals */}
-      <NicknameModal
-        isOpen={showNicknameModal}
-        onSubmit={handleNicknameSubmit}
-        isHost={playerColor === "white"}
-      />
-      <RoomCodeModal
-        isOpen={showRoomCodeModal}
-        roomId={roomId || ""}
-        onClose={() => setShowRoomCodeModal(false)}
-      />
+      {/* Navigation Buttons */}
+      <div className="fixed top-4 left-0 right-0 px-4 flex justify-between z-50">
+        {/* Home Button */}
+        <button
+          onClick={handleHomeClick}
+          title="Ana Menü"
+          className="relative items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-green-500 rounded-lg hover:bg-green-50 group"
+        >
+          <span className="absolute inset-0 border-0 group-hover:border-[25px] ease-linear duration-100 transition-all border-green-50 rounded-lg"></span>
+          <span className="relative w-full text-base font-semibold text-left text-white transition-colors duration-200 ease-in-out group-hover:text-green-600">
+            <Home className="w-5 h-5 md:w-6 md:h-6" />
+          </span>
+        </button>
 
-      {/* Top Bar with Reset button */}
-      <div className="fixed top-4 right-4 z-50">
+        {/* Reset Button */}
         <button
           onClick={initializeBoard}
           title="Reset Game"
@@ -138,6 +142,18 @@ function App() {
           </span>
         </button>
       </div>
+
+      {/* Modals */}
+      <NicknameModal
+        isOpen={showNicknameModal}
+        onSubmit={handleNicknameSubmit}
+        isHost={playerColor === "white"}
+      />
+      <RoomCodeModal
+        isOpen={showRoomCodeModal}
+        roomId={roomId || ""}
+        onClose={() => setShowRoomCodeModal(false)}
+      />
 
       {/* Chat Box - Only show in multiplayer mode */}
       {isMultiplayer && (
@@ -182,80 +198,30 @@ function App() {
           </div>
         </div>
 
-        {!isMultiplayer && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex flex-col md:flex-row gap-4 justify-between mt-4 pl-12"
-          >
-            <button
-              onClick={createRoom}
-              className="relative px-0 py-0 sm:px-5 sm:py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
-            >
-              <img
-                src="/assets/create-room.png"
-                alt="Play Button"
-                width="150"
-                height="70"
-                className="rounded-lg"
-              />
-            </button>
+        <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8 px-2 md:px-0">
+          {isMultiplayer && playerColor === "black" ? (
+            <>
+              <CapturedPieces pieces={capturedPieces.white} color="white" />
+              <Board />
+              <CapturedPieces pieces={capturedPieces.black} color="black" />
+            </>
+          ) : (
+            <>
+              <CapturedPieces pieces={capturedPieces.black} color="black" />
+              <Board />
+              <CapturedPieces pieces={capturedPieces.white} color="white" />
+            </>
+          )}
+        </div>
 
-            <div className="flex justify-between items-center gap-2">
-              <div>
-                <input
-                  type="text"
-                  value={joinRoomId}
-                  onChange={(e) => setJoinRoomId(e.target.value)}
-                  placeholder="Kodu Girin"
-                  className="rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10 text-orange-300 text-bold placeholder-white/50 border border-white/20 max-w-[150px] w-full min-h-[60px]"
-                  maxLength={6}
-                />
-              </div>
-
-              <div className="min-w-[150px]">
-                <button
-                  onClick={() => joinRoom(joinRoomId)}
-                  className="relative px-0 md:px-5 py-2.5 overflow-hidden transition-transform duration-300 ease-in-out hover:scale-110"
-                >
-                  <img
-                    src="/assets/katil.png"
-                    alt="Play Button"
-                    width="150"
-                    height="70"
-                    className="rounded-lg"
-                  />
-                </button>
-              </div>
-            </div>
-          </motion.div>
-        )}
+        <Modal
+          isOpen={modalState.isOpen}
+          title={modalState.title}
+          message={modalState.message}
+          type={modalState.type}
+          onClose={closeModal}
+        />
       </div>
-
-      <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8 px-2 md:px-0">
-        {isMultiplayer && playerColor === "black" ? (
-          <>
-            <CapturedPieces pieces={capturedPieces.white} color="white" />
-            <Board />
-            <CapturedPieces pieces={capturedPieces.black} color="black" />
-          </>
-        ) : (
-          <>
-            <CapturedPieces pieces={capturedPieces.black} color="black" />
-            <Board />
-            <CapturedPieces pieces={capturedPieces.white} color="white" />
-          </>
-        )}
-      </div>
-
-      <Modal
-        isOpen={modalState.isOpen}
-        title={modalState.title}
-        message={modalState.message}
-        type={modalState.type}
-        onClose={closeModal}
-      />
     </div>
   );
 }

@@ -430,7 +430,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       chess: new Chess(),
       board: convertBoardFromChess(new Chess()),
       selectedPiece: null,
-      currentPlayer: "white" as PieceColor,
+      currentPlayer: "white",
       moves: [],
       capturedPieces: {
         white: [],
