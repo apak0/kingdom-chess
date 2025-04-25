@@ -163,8 +163,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                   key={group[0].id}
                   className={`flex flex-col ${
                     group[0].sender === playerNickname
-                      ? "items-end"
-                      : "items-start"
+                      ? "items-start"
+                      : "items-end"
                   } space-y-1`}
                 >
                   {group.map((msg, msgIndex) => (
@@ -172,22 +172,22 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                       key={msg.id}
                       className={`flex flex-col ${
                         group[0].sender === playerNickname
-                          ? "items-end"
-                          : "items-start"
+                          ? "items-start"
+                          : "items-end"
                       } w-full`}
                     >
                       <div
                         className={`flex flex-col ${
                           group[0].sender === playerNickname
-                            ? "items-end"
-                            : "items-start"
+                            ? "items-start"
+                            : "items-end"
                         } min-w-[120px]`}
                       >
                         <div
                           className={`px-3 py-2 rounded-lg ${
                             msg.sender === playerNickname
-                              ? "bg-[#8B5E34] text-[#DEB887] rounded-tr-none"
-                              : "bg-[#6B4423] text-[#DEB887] rounded-tl-none"
+                              ? "bg-[#8B5E34] text-[#DEB887] rounded-tl-none"
+                              : "bg-[#6B4423] text-[#DEB887] rounded-tr-none"
                           }`}
                           style={{
                             maxWidth: "85%",
@@ -202,8 +202,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                           <div
                             className={`text-xs text-[#DEB887]/60 mt-1 ${
                               msg.sender === playerNickname
-                                ? "text-right"
-                                : "text-left"
+                                ? "text-left"
+                                : "text-right"
                             } w-full`}
                           >
                             {msg.sender}
