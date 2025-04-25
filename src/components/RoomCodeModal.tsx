@@ -79,7 +79,7 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
                   title="WhatsApp'ta Paylaş"
                 >
                   <i className="fab fa-whatsapp text-xl"></i>
-                  <span>WhatsApp</span>
+                  <span>Davet Et</span>
                 </motion.button>
               </div>
               {copied && (
