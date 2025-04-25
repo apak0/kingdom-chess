@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-import { RotateCcw, Home } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
@@ -118,28 +117,30 @@ function App() {
           {/* Navigation Buttons */}
           <div className="fixed top-4 left-0 right-0 px-4 flex justify-between z-50">
             {/* Home Button */}
-            <button
+            <motion.button
               onClick={handleHomeClick}
               title="Ana Menü"
-              className="relative items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-green-500 rounded-lg hover:bg-green-50 group"
+              className="relative transition-transform duration-300 ease-in-out hover:scale-110"
             >
-              <span className="absolute inset-0 border-0 group-hover:border-[25px] ease-linear duration-100 transition-all border-green-50 rounded-lg"></span>
-              <span className="relative w-full text-base font-semibold text-left text-white transition-colors duration-200 ease-in-out group-hover:text-green-600">
-                <Home className="w-5 h-5 md:w-6 md:h-6" />
-              </span>
-            </button>
+              <img
+                src="/assets/home-button.png"
+                alt="Ana Menü"
+                className="w-[100px] md:w-[180px] rounded-lg"
+              />
+            </motion.button>
 
             {/* Reset Button */}
-            <button
+            <motion.button
               onClick={initializeBoard}
-              title="Reset Game"
-              className="relative items-center justify-start inline-block px-5 py-2.5 overflow-hidden font-medium transition-all bg-indigo-400 rounded-lg hover:bg-indigo-50 group"
+              title="Oyunu Sıfırla"
+              className="relative transition-transform duration-300 ease-in-out hover:scale-110"
             >
-              <span className="absolute inset-0 border-0 group-hover:border-[25px] ease-linear duration-100 transition-all border-indigo-50 rounded-lg"></span>
-              <span className="relative w-full text-base font-semibold text-left text-white transition-colors duration-200 ease-in-out group-hover:text-indigo-600">
-                <RotateCcw className="w-5 h-5 md:w-6 md:h-6" />
-              </span>
-            </button>
+              <img
+                src="/assets/restart-button.png"
+                alt="Oyunu Sıfırla"
+                className="w-[100px] md:w-[180px] rounded-lg"
+              />
+            </motion.button>
           </div>
 
           {/* Modals */}

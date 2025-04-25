@@ -38,7 +38,7 @@ export const SplashScreen: React.FC<SplashScreenProps> = ({
             animate={{
               scale: 1,
               opacity: 1,
-            }}
+            }}  
             exit={{
               scale: 0.1,
               opacity: 0,
