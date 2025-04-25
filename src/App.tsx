@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
-import { RotateCcw, Copy } from "lucide-react";
+import { RotateCcw } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
@@ -8,6 +8,8 @@ import { NicknameModal } from "./components/NicknameModal";
 import { ChatBox } from "./components/ChatBox";
 import { SplashScreen } from "./components/SplashScreen";
 import { GameModeModal } from "./components/GameModeModal";
+import { MultiplayerOptionsModal } from "./components/MultiplayerOptionsModal";
+import { RoomCodeModal } from "./components/RoomCodeModal";
 import { useGameStore } from "./store/gameStore";
 
 function App() {
@@ -30,24 +32,20 @@ function App() {
     opponentNickname,
     messages,
     sendChatMessage,
-    whitePlayerNickname,
-    blackPlayerNickname,
   } = useGameStore();
 
-  const [joinRoomId, setJoinRoomId] = useState("");
-  const [copied, setCopied] = useState(false);
   const [showSplash, setShowSplash] = useState(true);
   const [showGameModeSelect, setShowGameModeSelect] = useState(false);
-  const [showMainGame, setShowMainGame] = useState(false);
+  const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
+  const [showRoomCodeModal, setShowRoomCodeModal] = useState(false);
+  const [joinRoomId, setJoinRoomId] = useState("");
 
-  // URL parametrelerini kontrol et
   useEffect(() => {
     const urlParams = new URLSearchParams(window.location.search);
     const roomParam = urlParams.get("room");
 
     if (roomParam && !isMultiplayer) {
       joinRoom(roomParam);
-      // URL'i temizle
       window.history.replaceState({}, document.title, window.location.pathname);
     }
   }, [joinRoom, isMultiplayer]);
@@ -60,35 +58,29 @@ function App() {
   const handleModeSelect = (mode: "ai" | "multiplayer") => {
     if (mode === "ai") {
       initializeBoard();
+      setShowGameModeSelect(false);
     } else {
-      createRoom();
+      setShowGameModeSelect(false);
+      setShowMultiplayerOptions(true);
     }
-    setShowGameModeSelect(false);
-    setShowMainGame(true);
   };
 
-  const copyRoomId = () => {
-    navigator.clipboard.writeText(roomId || "");
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
+  const handleMultiplayerOptionSelect = (
+    option: "create" | "join",
+    roomId?: string
+  ) => {
+    setShowMultiplayerOptions(false);
+    if (option === "create") {
+      createRoom();
+    } else if (roomId) {
+      joinRoom(roomId);
+    }
   };
 
-  const shareToWhatsApp = () => {
-    const gameUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
-    const message = `Hadi birlikte satranç oynayalım! Bağlantıya tıklayarak odama katıl: ${gameUrl}`;
-
-    const isMobile = /iPhone|iPad|iPod|Android/i.test(navigator.userAgent);
-
-    if (isMobile) {
-      window.open(
-        `whatsapp://send?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
-    } else {
-      window.open(
-        `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
-        "_blank"
-      );
+  const handleNicknameSubmit = (nickname: string) => {
+    setNickname(nickname);
+    if (isMultiplayer && playerColor === "white") {
+      setShowRoomCodeModal(true);
     }
   };
 
@@ -100,7 +92,15 @@ function App() {
     return <GameModeModal isOpen={true} onSelectMode={handleModeSelect} />;
   }
 
-  // Main game content
+  if (showMultiplayerOptions) {
+    return (
+      <MultiplayerOptionsModal
+        isOpen={true}
+        onSelectOption={handleMultiplayerOptionSelect}
+      />
+    );
+  }
+
   return (
     <div
       className="min-h-screen flex flex-col items-center justify-center p-4 md:p-8 relative overflow-x-hidden"
@@ -113,11 +113,16 @@ function App() {
         paddingBottom: "200px",
       }}
     >
-      {/* Nickname Modal */}
+      {/* Modals */}
       <NicknameModal
         isOpen={showNicknameModal}
-        onSubmit={setNickname}
+        onSubmit={handleNicknameSubmit}
         isHost={playerColor === "white"}
+      />
+      <RoomCodeModal
+        isOpen={showRoomCodeModal}
+        roomId={roomId || ""}
+        onClose={() => setShowRoomCodeModal(false)}
       />
 
       {/* Top Bar with Reset button */}
@@ -223,49 +228,6 @@ function App() {
                   />
                 </button>
               </div>
-            </div>
-          </motion.div>
-        )}
-
-        {roomId && (
-          <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            animate={{ opacity: 1, scale: 1 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
-            className="flex items-center justify-center gap-2 mt-4"
-          >
-            <div className="px-4 py-2 rounded-lg text-center text-2xl font-[MedievalSharp] bg-white/10 text-orange-300 text-bold placeholder-white/50 border border-white/20">
-              Oda Kodu: <span className="font-sans text-red-500">{roomId}</span>
-            </div>
-            <div className="flex flex-col items-center gap-1">
-              <button
-                onClick={copyRoomId}
-                className="bg-[#FE7743] text-white p-2 rounded-lg hover:bg-[#FFA55D] transition-colors flex justify-center items-center whitespace-nowrap min-w-[53px]"
-                title="Kodu Kopyala"
-              >
-                <Copy size={37} />
-                <span className="hidden md:inline ml-2">Kopyala</span>
-              </button>
-              {copied && (
-                <motion.span
-                  initial={{ opacity: 0, y: -5 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  className="text-white text-xs whitespace-nowrap absolute -bottom-4"
-                >
-                  Kopyalandı!
-                </motion.span>
-              )}
-            </div>
-
-            <div className="min-h-[53px]">
-              <button
-                onClick={shareToWhatsApp}
-                className="bg-[#25D366] text-white p-2 rounded-lg hover:opacity-90 transition-colors flex justify-center items-center whitespace-nowrap min-w-[53px]"
-                title="Davet Et"
-              >
-                <i className="fab fa-whatsapp text-4xl"></i>
-                <span className="hidden md:inline ml-2">Davet Et</span>
-              </button>
             </div>
           </motion.div>
         )}

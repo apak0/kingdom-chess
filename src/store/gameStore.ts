@@ -32,7 +32,24 @@ const pieceTypeMap: Record<string, PieceType["type"]> = {
   k: "king",
 };
 
-const convertPieceFromChess = (piece: any): PieceType | null => {
+// Type definitions for chess.js piece
+interface ChessPiece {
+  type: string;
+  color: "w" | "b";
+}
+
+// Add type for chess.js move
+interface ChessMove {
+  to: string;
+  from: string;
+  color: "w" | "b";
+  flags: string;
+  piece: string;
+  san: string;
+  captured?: string;
+}
+
+const convertPieceFromChess = (piece: ChessPiece): PieceType | null => {
   if (!piece) return null;
 
   const type = pieceTypeMap[piece.type];
@@ -55,7 +72,7 @@ const convertBoardFromChess = (chess: Chess): (PieceType | null)[][] => {
     for (let x = 0; x < 8; x++) {
       const square = convertToChessNotation({ x, y }) as ChessSquare;
       const piece = chess.get(square);
-      board[y][x] = piece ? convertPieceFromChess(piece) : null;
+      board[y][x] = piece ? convertPieceFromChess(piece as ChessPiece) : null;
     }
   }
 
@@ -148,7 +165,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   chess: new Chess(),
   board: convertBoardFromChess(new Chess()),
   selectedPiece: null,
-  currentPlayer: "white",
+  currentPlayer: "white" as PieceColor,
   moves: [],
   capturedPieces: {
     white: [],
@@ -266,9 +283,9 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         if (moveResult.captured) {
           const capturedType = pieceTypeMap[moveResult.captured];
-          const capturedPiece = {
-            type: capturedType,
-            color: moveResult.color === "w" ? "black" : "white",
+          const capturedPiece: PieceType = {
+            type: capturedType as PieceType["type"],
+            color: (moveResult.color === "w" ? "black" : "white") as PieceColor,
             hasMoved: true,
           };
           // Yakalanan taş karşı tarafa eklenir
@@ -300,7 +317,10 @@ export const useGameStore = create<GameState>((set, get) => ({
           board: newBoard,
           selectedPiece: null,
           // Multiplayer modunda sıra diğer oyuncuya geçer, tek oyunculuda ise AI hamlesi yapılacak
-          currentPlayer: state.currentPlayer === "white" ? "black" : "white",
+          currentPlayer:
+            state.currentPlayer === "white"
+              ? ("black" as PieceColor)
+              : ("white" as PieceColor),
           moves: [...state.moves, { from, to }],
           capturedPieces: newCapturedPieces,
           isCheckmate: isInCheckmate,
@@ -310,7 +330,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                 isOpen: true,
                 title: "🤝 Pat!",
                 message: "Oyun berabere bitti!",
-                type: "stalemate",
+                type: "stalemate" as const,
               }
             : isInCheckmate
             ? {
@@ -319,7 +339,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                 message: `${
                   state.currentPlayer === "white" ? "Beyaz" : "Siyah"
                 } oyuncu kazandı!`,
-                type: "checkmate",
+                type: "checkmate" as const,
               }
             : isInCheck
             ? {
@@ -328,7 +348,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                 message: `${
                   state.currentPlayer === "white" ? "Siyah" : "Beyaz"
                 } şah çekildi!`,
-                type: "check",
+                type: "check" as const,
               }
             : state.modalState,
         };
@@ -350,15 +370,15 @@ export const useGameStore = create<GameState>((set, get) => ({
 
               if (aiMoveResult.captured) {
                 const capturedType = pieceTypeMap[aiMoveResult.captured];
-                const capturedPiece = {
-                  type: capturedType,
-                  color: aiMoveResult.color === "w" ? "black" : "white",
+                const capturedColor =
+                  aiMoveResult.color === "w" ? "black" : "white";
+                const capturedPiece: PieceType = {
+                  type: capturedType as PieceType["type"],
+                  color: capturedColor as PieceColor,
                   hasMoved: true,
                 };
                 // AI'nin yakaladığı taşlar karşı tarafa eklenir
-                newCapturedPieces[
-                  aiMoveResult.color === "w" ? "black" : "white"
-                ].push(capturedPiece);
+                newCapturedPieces[capturedColor].push(capturedPiece);
               }
 
               const playerInCheckmate = state.chess.isCheckmate();
@@ -376,21 +396,21 @@ export const useGameStore = create<GameState>((set, get) => ({
                       isOpen: true,
                       title: "🤝 Pat!",
                       message: "Oyun berabere bitti!",
-                      type: "stalemate",
+                      type: "stalemate" as const,
                     }
                   : playerInCheckmate
                   ? {
                       isOpen: true,
                       title: "♚ Şah Mat!",
                       message: "Üzgünüm, AI sizi mat etti!",
-                      type: "checkmate",
+                      type: "checkmate" as const,
                     }
                   : playerInCheck
                   ? {
                       isOpen: true,
                       title: "♚ Şah!",
                       message: "Beyaz şah çekildi!",
-                      type: "check",
+                      type: "check" as const,
                     }
                   : { ...state.modalState, isOpen: false },
               });
@@ -410,7 +430,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       chess: new Chess(),
       board: convertBoardFromChess(new Chess()),
       selectedPiece: null,
-      currentPlayer: "white",
+      currentPlayer: "white" as PieceColor,
       moves: [],
       capturedPieces: {
         white: [],
@@ -437,11 +457,15 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   isValidMove: (from, to) => {
     const state = get();
-    const fromSquare = convertToChessNotation(from);
-    const toSquare = convertToChessNotation(to);
+    const fromSquare = convertToChessNotation(from) as ChessSquare;
+    const toSquare = convertToChessNotation(to) as ChessSquare;
 
     try {
-      const moves = state.chess.moves({ square: fromSquare, verbose: true });
+      const moves = state.chess.moves({
+        square: fromSquare,
+        verbose: true,
+      }) as ChessMove[];
+      if (!Array.isArray(moves)) return false;
       return moves.some((move) => move.to === toSquare);
     } catch (error) {
       console.error("Hamle geçerliliği kontrol edilirken hata:", error);
@@ -525,7 +549,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         chess: new Chess(),
         board: convertBoardFromChess(new Chess()),
         selectedPiece: null,
-        currentPlayer: "white",
+        currentPlayer: "white" as PieceColor,
         moves: [],
         capturedPieces: {
           white: [],
@@ -537,9 +561,9 @@ export const useGameStore = create<GameState>((set, get) => ({
         isMultiplayer: true,
         playerColor: "white",
         modalState: {
-          isOpen: true,
-          title: "✅ Oda Oluşturuldu",
-          message: `Oyun Kodu: ${roomId}. Rakibinizin katılmasını bekleyin.`,
+          isOpen: false,
+          title: "",
+          message: "",
           type: "check",
         },
         showNicknameModal: true,
@@ -578,15 +602,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           if (moveResult.captured) {
             const capturedType = pieceTypeMap[moveResult.captured];
-            const capturedPiece = {
-              type: capturedType,
-              color: moveResult.color === "w" ? "black" : "white",
+            const capturedColor = moveResult.color === "w" ? "black" : "white";
+            const capturedPiece: PieceType = {
+              type: capturedType as PieceType["type"],
+              color: capturedColor as PieceColor,
               hasMoved: true,
             };
-            // Yakalanan taş karşı tarafa eklenir
-            newCapturedPieces[
-              moveResult.color === "w" ? "black" : "white"
-            ].push(capturedPiece);
+            newCapturedPieces[capturedColor].push(capturedPiece);
           }
 
           const isInCheckmate = state.chess.isCheckmate();
@@ -595,7 +617,10 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           set({
             board: newBoard,
-            currentPlayer: state.currentPlayer === "white" ? "black" : "white",
+            currentPlayer:
+              state.currentPlayer === "white"
+                ? ("black" as PieceColor)
+                : ("white" as PieceColor),
             capturedPieces: newCapturedPieces,
             isCheckmate: isInCheckmate,
             isStalemate: isInStalemate,
@@ -604,7 +629,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   isOpen: true,
                   title: "🤝 Pat!",
                   message: "Oyun berabere bitti!",
-                  type: "stalemate",
+                  type: "stalemate" as const,
                 }
               : isInCheckmate
               ? {
@@ -613,7 +638,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   message: `${
                     state.currentPlayer === "white" ? "Beyaz" : "Siyah"
                   } oyuncu kazandı!`,
-                  type: "checkmate",
+                  type: "checkmate" as const,
                 }
               : isInCheck
               ? {
@@ -622,7 +647,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   message: `${
                     state.currentPlayer === "white" ? "Siyah" : "Beyaz"
                   } şah çekildi!`,
-                  type: "check",
+                  type: "check" as const,
                 }
               : { ...state.modalState, isOpen: false },
           });
@@ -651,7 +676,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           chess: new Chess(),
           board: convertBoardFromChess(new Chess()),
           selectedPiece: null,
-          currentPlayer: "white",
+          currentPlayer: "white" as PieceColor,
           moves: [],
           capturedPieces: {
             white: [],
@@ -732,7 +757,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         chess: new Chess(),
         board: convertBoardFromChess(new Chess()),
         selectedPiece: null,
-        currentPlayer: "white",
+        currentPlayer: "white" as PieceColor,
         moves: [],
         capturedPieces: {
           white: [],
@@ -744,9 +769,9 @@ export const useGameStore = create<GameState>((set, get) => ({
         isMultiplayer: true,
         playerColor: "black",
         modalState: {
-          isOpen: true,
-          title: "🎮 Oyuna Katıldınız!",
-          message: "Siyah taş olarak oynuyorsunuz. Beyazın hamlesini bekleyin.",
+          isOpen: false,
+          title: "",
+          message: "",
           type: "check",
         },
         showNicknameModal: true,
@@ -786,15 +811,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           if (moveResult.captured) {
             const capturedType = pieceTypeMap[moveResult.captured];
-            const capturedPiece = {
-              type: capturedType,
-              color: moveResult.color === "w" ? "black" : "white",
+            const capturedColor = moveResult.color === "w" ? "black" : "white";
+            const capturedPiece: PieceType = {
+              type: capturedType as PieceType["type"],
+              color: capturedColor as PieceColor,
               hasMoved: true,
             };
-            // Yakalanan taş karşı tarafa eklenir
-            newCapturedPieces[
-              moveResult.color === "w" ? "black" : "white"
-            ].push(capturedPiece);
+            newCapturedPieces[capturedColor].push(capturedPiece);
           }
 
           const isInCheckmate = state.chess.isCheckmate();
@@ -803,7 +826,10 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           set({
             board: newBoard,
-            currentPlayer: state.currentPlayer === "white" ? "black" : "white",
+            currentPlayer:
+              state.currentPlayer === "white"
+                ? ("black" as PieceColor)
+                : ("white" as PieceColor),
             capturedPieces: newCapturedPieces,
             isCheckmate: isInCheckmate,
             isStalemate: isInStalemate,
@@ -812,7 +838,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   isOpen: true,
                   title: "🤝 Pat!",
                   message: "Oyun berabere bitti!",
-                  type: "stalemate",
+                  type: "stalemate" as const,
                 }
               : isInCheckmate
               ? {
@@ -821,7 +847,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   message: `${
                     state.currentPlayer === "white" ? "Beyaz" : "Siyah"
                   } oyuncu kazandı!`,
-                  type: "checkmate",
+                  type: "checkmate" as const,
                 }
               : isInCheck
               ? {
@@ -830,7 +856,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   message: `${
                     state.currentPlayer === "white" ? "Siyah" : "Beyaz"
                   } şah çekildi!`,
-                  type: "check",
+                  type: "check" as const,
                 }
               : { ...state.modalState, isOpen: false },
           });
@@ -859,7 +885,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           chess: new Chess(),
           board: convertBoardFromChess(new Chess()),
           selectedPiece: null,
-          currentPlayer: "white",
+          currentPlayer: "white" as PieceColor,
           moves: [],
           capturedPieces: {
             white: [],
