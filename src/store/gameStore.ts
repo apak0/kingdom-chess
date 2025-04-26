@@ -122,7 +122,7 @@ socket.on("disconnect", (reason) => {
 
 interface GameState {
   chess: Chess;
-  board: (PieceType | null)[][];
+  board: (PieceType | null)[];
   selectedPiece: { position: Position; piece: PieceType } | null;
   currentPlayer: PieceColor;
   moves: { from: Position; to: Position }[];
@@ -141,7 +141,7 @@ interface GameState {
   roomId: string | null;
   isMultiplayer: boolean;
   playerColor: PieceColor | null;
-  nickname: string | null;
+  playerNickname: string | null;
   opponentNickname: string | null;
   whitePlayerNickname: string | null;
   blackPlayerNickname: string | null;
@@ -196,7 +196,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   roomId: null,
   isMultiplayer: false,
   playerColor: null,
-  nickname: null,
+  playerNickname: null,
   opponentNickname: null,
   whitePlayerNickname: null,
   blackPlayerNickname: null,
@@ -465,7 +465,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       roomId: null,
       isMultiplayer: false,
       playerColor: null,
-      nickname: null,
+      playerNickname: null,
       opponentNickname: null,
       whitePlayerNickname: null,
       blackPlayerNickname: null,
@@ -510,16 +510,16 @@ export const useGameStore = create<GameState>((set, get) => ({
       if (state.playerColor === "white") {
         return {
           ...state,
-          nickname,
-          showNicknameModal: false,
+          playerNickname: nickname,
           whitePlayerNickname: nickname,
+          showNicknameModal: false,
         };
       } else {
         return {
           ...state,
-          nickname,
-          showNicknameModal: false,
+          playerNickname: nickname,
           blackPlayerNickname: nickname,
+          showNicknameModal: false,
         };
       }
     }),
@@ -717,7 +717,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           roomId: null,
           isMultiplayer: false,
           playerColor: null,
-          nickname: null,
+          playerNickname: null,
           opponentNickname: null,
           whitePlayerNickname: null,
           blackPlayerNickname: null,
@@ -942,7 +942,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           roomId: null,
           isMultiplayer: false,
           playerColor: null,
-          nickname: null,
+          playerNickname: null,
           opponentNickname: null,
           whitePlayerNickname: null,
           blackPlayerNickname: null,
