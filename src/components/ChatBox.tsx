@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, ChevronDown } from "lucide-react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface ChatBoxProps {
   messages: Array<{
@@ -22,51 +22,58 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
   opponentNickname,
   playerColor = "white",
 }) => {
-  const [isOpen, setIsOpen] = useState(false);
-  const [isCollapsed, setIsCollapsed] = useState(true); // Start collapsed
+  const [isCollapsed, setIsCollapsed] = useState(true);
   const [message, setMessage] = useState("");
-  const [unreadCount, setUnreadCount] = useState(0);
+  const [hasNewMessage, setHasNewMessage] = useState(false);
+  const [seenMessages, setSeenMessages] = useState<Set<string>>(new Set());
   const chatContainerRef = useRef<HTMLDivElement>(null);
   const chatBoxRef = useRef<HTMLDivElement>(null);
   const lastMessageCountRef = useRef(messages.length);
 
+  // Dışarı tıklama olayını dinle
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
       if (
-        isOpen &&
         chatBoxRef.current &&
-        !chatBoxRef.current.contains(event.target as Node) &&
-        event.target instanceof Element &&
-        !event.target.closest('button[title="Sohbeti Kapat"]')
+        !chatBoxRef.current.contains(event.target as Node)
       ) {
-        setIsOpen(false);
+        setIsCollapsed(true);
       }
     };
 
     document.addEventListener("mousedown", handleClickOutside);
-
     return () => {
       document.removeEventListener("mousedown", handleClickOutside);
     };
-  }, [isOpen]);
+  }, []);
 
+  // Yeni mesaj geldiğinde shadow animasyonunu başlat
   useEffect(() => {
-    // If there are new messages and chat is closed, increment unread count
-    if (!isOpen && messages.length > lastMessageCountRef.current) {
-      setUnreadCount(
-        (prev) => prev + (messages.length - lastMessageCountRef.current)
-      );
+    if (isCollapsed) {
+      const newMessages = messages.filter(
+        (msg) => !seenMessages.has(msg.id) && msg.sender !== playerNickname
+      ).length;
+      if (newMessages > 0) {
+        setHasNewMessage(true);
+      }
     }
-    lastMessageCountRef.current = messages.length;
-  }, [messages, isOpen]);
+  }, [messages, isCollapsed, seenMessages, playerNickname]);
 
+  // Chat açıldığında mesajları okundu olarak işaretle
   useEffect(() => {
-    if (isOpen) {
-      setUnreadCount(0); // Reset unread count when chat is opened
+    if (!isCollapsed) {
+      const newSeenMessages = new Set(seenMessages);
+      messages.forEach((msg) => {
+        if (msg.sender !== playerNickname) {
+          newSeenMessages.add(msg.id);
+        }
+      });
+      setSeenMessages(newSeenMessages);
+      setHasNewMessage(false);
     }
-  }, [isOpen]);
+  }, [isCollapsed, messages, playerNickname]);
 
-  // Scroll to bottom when new messages arrive or chat is opened/uncollapsed
+  // Otomatik kaydırma
   useEffect(() => {
     const scrollToBottom = () => {
       if (chatContainerRef.current) {
@@ -75,12 +82,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
       }
     };
 
-    // Immediate scroll
     scrollToBottom();
-
-    // Add a small delay to ensure content is rendered
     const timeoutId = setTimeout(scrollToBottom, 100);
-
     return () => clearTimeout(timeoutId);
   }, [messages, isCollapsed]);
 
@@ -106,34 +109,47 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
 
   return (
     <>
-      {/* Move toggle button to the top center */}
       <div className="fixed bottom-4 left-1/2 -translate-x-1/2 z-50">
         <motion.div
           ref={chatBoxRef}
           initial={{ y: 20, opacity: 0 }}
-          animate={{ y: 0, opacity: 1 }}
-          exit={{ y: 20, opacity: 0 }}
-          transition={{ type: "spring", stiffness: 300, damping: 30 }}
+          animate={{
+            y: 0,
+            opacity: 1,
+            boxShadow: hasNewMessage
+              ? [
+                  "0 0 0 rgba(239, 68, 68, 0)",
+                  "0 0 20px rgba(239, 68, 68, 0.8)",
+                  "0 0 0 rgba(239, 68, 68, 0)",
+                ]
+              : "0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06)",
+          }}
+          transition={{
+            boxShadow: {
+              duration: 2,
+              repeat: Infinity,
+              ease: "easeInOut",
+            },
+          }}
           className="w-[calc(100vw-32px)] sm:w-96 max-w-[400px] bg-[#4A3728] rounded-lg shadow-xl border-2 border-[#8B5E34] flex flex-col"
         >
-          {/* Header with players */}
-          <div className="sticky top-0 z-10 p-2 sm:p-3 border-b border-[#8B5E34] bg-[#3D2E22] rounded-t-lg">
+          {/* Header */}
+          <div
+            className="sticky top-0 z-10 p-2 sm:p-3 border-b border-[#8B5E34] bg-[#3D2E22] rounded-t-lg cursor-pointer"
+            onClick={() => setIsCollapsed(!isCollapsed)}
+          >
             <div className="flex items-center justify-between text-xs sm:text-sm">
               <div className="flex-1 text-[#DEB887]">
                 {playerColor === "white" ? "⚪" : "⚫"}{" "}
                 {playerNickname || "Oyuncu"}
               </div>
-              <button
-                onClick={() => setIsCollapsed(!isCollapsed)}
+              <motion.div
+                animate={{ rotate: isCollapsed ? 180 : 0 }}
+                transition={{ duration: 0.3 }}
                 className="mx-2 p-1 hover:bg-[#6B4423] rounded-full transition-colors"
               >
-                <motion.div
-                  animate={{ rotate: isCollapsed ? 180 : 0 }}
-                  transition={{ duration: 0.3 }}
-                >
-                  <ChevronDown className="w-5 h-5 text-[#DEB887]" />
-                </motion.div>
-              </button>
+                <ChevronDown className="w-5 h-5 text-[#DEB887]" />
+              </motion.div>
               <div className="flex-1 text-right text-[#DEB887]">
                 {playerColor === "white" ? "⚫" : "⚪"}{" "}
                 {opponentNickname || "Rakip"}
@@ -171,14 +187,14 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                     <div
                       key={msg.id}
                       className={`flex flex-col ${
-                        group[0].sender === playerNickname
+                        msg.sender === playerNickname
                           ? "items-start"
                           : "items-end"
                       } w-full`}
                     >
                       <div
                         className={`flex flex-col ${
-                          group[0].sender === playerNickname
+                          msg.sender === playerNickname
                             ? "items-start"
                             : "items-end"
                         } min-w-[120px]`}
@@ -238,12 +254,6 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
               </div>
             </form>
           </motion.div>
-
-          {unreadCount > 0 && isCollapsed && (
-            <div className="absolute -top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center text-xs font-bold animate-pulse">
-              {unreadCount}
-            </div>
-          )}
         </motion.div>
       </div>
     </>

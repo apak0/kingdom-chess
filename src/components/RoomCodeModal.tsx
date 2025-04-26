@@ -6,12 +6,14 @@ interface RoomCodeModalProps {
   isOpen: boolean;
   roomId: string;
   onClose: () => void;
+  nickname?: string; // Nickname prop'u eklendi
 }
 
 export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
   isOpen,
   roomId,
   onClose,
+  nickname = "Anonim", // Varsayılan değer
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -26,7 +28,8 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
     // Tam URL'yi oluşturma (localhost veya canlı sunucu)
     const baseUrl = window.location.origin;
     const gameUrl = `${baseUrl}/join?room=${roomId}`;
-    const message = `Hadi birlikte satranç oynayalım! ${gameUrl}`;
+    // Nickname'i davet mesajına ekleyelim
+    const message = `${nickname} seni satranç oynamaya davet ediyor! Hadi birlikte oynayalım! ${gameUrl}`;
 
     console.log("Paylaşılacak bağlantı:", gameUrl);
 

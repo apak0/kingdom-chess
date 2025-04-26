@@ -20,13 +20,13 @@ export const Modal: React.FC<ModalProps> = ({
   const getColorClass = () => {
     switch (type) {
       case "check":
-        return "text-amber-500";
+        return "text-orange-300"; // Oyun temasına uygun turuncu
       case "checkmate":
-        return "text-red-600";
+        return "text-red-500"; // Mat durumu için kırmızı
       case "stalemate":
-        return "text-blue-500";
+        return "text-[#DEB887]"; // Pat durumu için kahverengi
       default:
-        return "text-gray-700";
+        return "text-[#DEB887]";
     }
   };
 
@@ -44,12 +44,12 @@ export const Modal: React.FC<ModalProps> = ({
             animate={{ scale: 1, opacity: 1 }}
             exit={{ scale: 0.5, opacity: 0 }}
             transition={{ type: "spring", damping: 20, stiffness: 300 }}
-            className="bg-white text-center rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl"
+            className="bg-[#4A3728] text-center rounded-lg p-6 max-w-sm w-full mx-4 shadow-xl border-2 border-[#8B5E34]"
           >
             <motion.div
               initial={{ y: -20 }}
               animate={{ y: 0 }}
-              className={`text-2xl font-bold mb-4 ${getColorClass()}`}
+              className={`text-2xl font-[MedievalSharp] mb-4 ${getColorClass()}`}
             >
               {title}
             </motion.div>
@@ -57,7 +57,7 @@ export const Modal: React.FC<ModalProps> = ({
               initial={{ opacity: 0 }}
               animate={{ opacity: 1 }}
               transition={{ delay: 0.2 }}
-              className="text-gray-700 mb-4"
+              className="text-[#DEB887] mb-4 font-[MedievalSharp]"
             >
               {message}
             </motion.p>
