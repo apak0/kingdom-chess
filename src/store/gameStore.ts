@@ -95,6 +95,7 @@ const SERVER_URL =
 
 console.log("Connecting to server:", SERVER_URL);
 
+// Tek bir socket örneği oluştur ve bunu global olarak kullan
 const socket = io(SERVER_URL, {
   transports: ["polling", "websocket"],
   reconnection: true,
@@ -103,9 +104,10 @@ const socket = io(SERVER_URL, {
   reconnectionDelayMax: 5000,
   timeout: 20000,
   autoConnect: true,
-  forceNew: true,
+  forceNew: false, // Bunu false olarak ayarlıyorum, tekrar tekrar bağlantı oluşturmaması için
 });
 
+// Temel bağlantı durumu dinleyicileri
 socket.on("connect", () => {
   console.log("Socket bağlantısı kuruldu:", socket.id);
 });
@@ -160,6 +162,18 @@ interface GameState {
   setNickname: (nickname: string) => void;
   sendChatMessage: (text: string) => void;
 }
+
+// Socket olaylarını temizleme helper fonksiyonu
+const cleanupSocketListeners = () => {
+  socket.off("roomCreated");
+  socket.off("joinedRoom");
+  socket.off("joinError");
+  socket.off("gameStart");
+  socket.off("moveMade");
+  socket.off("playerLeft");
+  socket.off("nicknameSet");
+  socket.off("chatMessage");
+};
 
 export const useGameStore = create<GameState>((set, get) => ({
   chess: new Chess(),
@@ -425,8 +439,12 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     }),
 
-  initializeBoard: () =>
-    set(() => ({
+  initializeBoard: () => {
+    // Socket event listener'larını temizle
+    cleanupSocketListeners();
+
+    // Oyunu sıfırla
+    set({
       chess: new Chess(),
       board: convertBoardFromChess(new Chess()),
       selectedPiece: null,
@@ -453,7 +471,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       blackPlayerNickname: null,
       showNicknameModal: false,
       messages: [],
-    })),
+    });
+  },
 
   isValidMove: (from, to) => {
     const state = get();
@@ -482,7 +501,10 @@ export const useGameStore = create<GameState>((set, get) => ({
   setNickname: (nickname: string) =>
     set((state) => {
       // Nickname'i kaydet ve socket'e gönder
-      socket.emit("setNickname", { roomId: state.roomId, nickname });
+      if (state.roomId) {
+        socket.emit("setNickname", { roomId: state.roomId, nickname });
+        console.log("Nickname set and sent to server:", nickname);
+      }
 
       // Kendi rengimize göre nickname'i ayarla
       if (state.playerColor === "white") {
@@ -519,6 +541,8 @@ export const useGameStore = create<GameState>((set, get) => ({
       message,
     });
 
+    console.log("Chat message sent:", message);
+
     // Mesajı local state'e ekle
     set((state) => ({
       ...state,
@@ -528,23 +552,21 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   createRoom: () => {
     // Önceki event listener'ları temizle
-    const cleanupSocketListeners = () => {
-      socket.off("roomCreated");
-      socket.off("gameStart");
-      socket.off("moveMade");
-      socket.off("playerLeft");
-      socket.off("nicknameSet");
-      socket.off("chatMessage");
-    };
-
-    // Önce mevcut listener'ları temizle
     cleanupSocketListeners();
+
+    // Socket bağlantısını kontrol et
+    if (!socket.connected) {
+      console.log("Socket bağlantısı kurulmamış, yeniden bağlanılıyor...");
+      socket.connect();
+    }
 
     // Oda oluşturma isteği gönder
     socket.emit("createRoom");
+    console.log("createRoom event emitted");
 
-    // Yeni event listener'ları bir kere ekle
-    socket.once("roomCreated", (roomId: string) => {
+    // roomCreated eventi
+    socket.on("roomCreated", (roomId: string) => {
+      console.log("roomCreated event received:", roomId);
       set({
         chess: new Chess(),
         board: convertBoardFromChess(new Chess()),
@@ -568,11 +590,11 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
         showNicknameModal: true,
       });
-      console.log("Oda oluşturuldu:", roomId);
     });
 
+    // Game start eventi
     socket.on("gameStart", (gameData) => {
-      console.log("Oyun başladı:", gameData);
+      console.log("gameStart event received:", gameData);
       set((state) => ({
         ...state,
         modalState: {
@@ -584,8 +606,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }));
     });
 
+    // Move eventi
     socket.on("moveMade", (move) => {
-      console.log("Hamle alındı:", move);
+      console.log("moveMade event received:", move);
       const state = get();
       try {
         const moveResult = state.chess.move(move);
@@ -657,7 +680,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     });
 
+    // Player left eventi
     socket.on("playerLeft", () => {
+      console.log("playerLeft event received");
       set((state) => ({
         ...state,
         modalState: {
@@ -668,10 +693,9 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
       }));
 
-      cleanupSocketListeners();
-
       // Multiplayer modunu kapat
       setTimeout(() => {
+        cleanupSocketListeners();
         set({
           chess: new Chess(),
           board: convertBoardFromChess(new Chess()),
@@ -703,8 +727,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }, 3000);
     });
 
-    // Nickname event listener'ı
+    // nicknameSet eventi
     socket.on("nicknameSet", ({ nickname, color }) => {
+      console.log("nicknameSet event received:", nickname, color);
       set((state) => ({
         ...state,
         whitePlayerNickname:
@@ -716,8 +741,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }));
     });
 
-    // Chat mesajı listener'ı
+    // chatMessage eventi
     socket.on("chatMessage", (message) => {
+      console.log("chatMessage event received:", message);
       const state = get();
       // Mesajın daha önce eklenip eklenmediğini kontrol et
       const messageExists = state.messages.some((m) => m.id === message.id);
@@ -728,31 +754,34 @@ export const useGameStore = create<GameState>((set, get) => ({
         }));
       }
     });
-
-    // Component unmount olduğunda veya room değiştiğinde cleanup yap
-    return () => cleanupSocketListeners();
   },
 
   joinRoom: (roomId: string) => {
     // Önceki event listener'ları temizle
-    const cleanupSocketListeners = () => {
-      socket.off("joinedRoom");
-      socket.off("joinError");
-      socket.off("gameStart");
-      socket.off("moveMade");
-      socket.off("playerLeft");
-      socket.off("nicknameSet");
-      socket.off("chatMessage");
-    };
-
-    // Önce mevcut listener'ları temizle
     cleanupSocketListeners();
+
+    // Socket bağlantısını kontrol et
+    if (!socket.connected) {
+      console.log("Socket bağlantısı kurulmamış, yeniden bağlanılıyor...");
+      socket.connect();
+    }
+
+    console.log("Attempting to join room:", roomId);
+
+    // Deep link ile gelip gelmediğini anlamak için flag
+    const isDeepLink = window.location.search.includes("room=");
+
+    // Odaya başarıyla katıldığımızı takip edecek değişken
+    let hasJoinedRoom = false;
 
     // Odaya katılma isteği gönder
     socket.emit("joinRoom", roomId);
 
-    // Yeni event listener'ları bir kere ekle
-    socket.once("joinedRoom", () => {
+    // joinedRoom eventi
+    socket.on("joinedRoom", () => {
+      console.log("joinedRoom event received for room:", roomId);
+      hasJoinedRoom = true; // Başarıyla katıldığımızı işaretle
+
       set({
         chess: new Chess(),
         board: convertBoardFromChess(new Chess()),
@@ -776,12 +805,21 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
         showNicknameModal: true,
       });
-      console.log("Odaya katılındı:", roomId);
     });
 
+    // joinError eventi - sadece deep link ile gelmediysek ve henüz başarıyla katılmadıysak hata göster
     socket.on("joinError", (error) => {
-      console.error("Odaya katılma hatası:", error);
-      cleanupSocketListeners();
+      console.error("joinError event received:", error);
+
+      // Eğer başarıyla katıldıysak veya deep link ile geldiysek hatayı gösterme
+      if (hasJoinedRoom || isDeepLink) {
+        console.log(
+          "Hata gösterilmiyor çünkü:",
+          hasJoinedRoom ? "zaten katılındı" : "deep link ile gelindi"
+        );
+        return;
+      }
+
       set((state) => ({
         ...state,
         modalState: {
@@ -793,8 +831,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }));
     });
 
+    // moveMade eventi
     socket.on("moveMade", (move) => {
-      console.log("Hamle alındı:", move);
+      console.log("moveMade event received:", move);
       const state = get();
       try {
         const moveResult = state.chess.move(move);
@@ -866,7 +905,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }
     });
 
+    // playerLeft eventi
     socket.on("playerLeft", () => {
+      console.log("playerLeft event received");
       set((state) => ({
         ...state,
         modalState: {
@@ -877,10 +918,9 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
       }));
 
-      cleanupSocketListeners();
-
       // Multiplayer modunu kapat
       setTimeout(() => {
+        cleanupSocketListeners();
         set({
           chess: new Chess(),
           board: convertBoardFromChess(new Chess()),
@@ -912,8 +952,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }, 3000);
     });
 
-    // Nickname event listener'ı
+    // nicknameSet eventi
     socket.on("nicknameSet", ({ nickname, color }) => {
+      console.log("nicknameSet event received:", nickname, color);
       set((state) => ({
         ...state,
         whitePlayerNickname:
@@ -925,8 +966,9 @@ export const useGameStore = create<GameState>((set, get) => ({
       }));
     });
 
-    // Chat mesajı listener'ı
+    // chatMessage eventi
     socket.on("chatMessage", (message) => {
+      console.log("chatMessage event received:", message);
       const state = get();
       // Mesajın daha önce eklenip eklenmediğini kontrol et
       const messageExists = state.messages.some((m) => m.id === message.id);
@@ -937,8 +979,5 @@ export const useGameStore = create<GameState>((set, get) => ({
         }));
       }
     });
-
-    // Component unmount olduğunda veya room değiştiğinde cleanup yap
-    return () => cleanupSocketListeners();
   },
 }));

@@ -1,5 +1,6 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
@@ -11,7 +12,21 @@ import { MultiplayerOptionsModal } from "./components/MultiplayerOptionsModal";
 import { RoomCodeModal } from "./components/RoomCodeModal";
 import { useGameStore } from "./store/gameStore";
 
+// Ana uygulama içinde artık BrowserRouter yok, doğrudan Routes
 function App() {
+  return (
+    <Routes>
+      <Route path="/" element={<GameScreen />} />
+      <Route path="/join" element={<GameScreen />} />
+    </Routes>
+  );
+}
+
+// Oyun ekranı bileşeni
+function GameScreen() {
+  const navigate = useNavigate();
+  const location = useLocation();
+
   const {
     currentPlayer,
     initializeBoard,
@@ -37,16 +52,61 @@ function App() {
   const [showGameModeSelect, setShowGameModeSelect] = useState(false);
   const [showMultiplayerOptions, setShowMultiplayerOptions] = useState(false);
   const [showRoomCodeModal, setShowRoomCodeModal] = useState(false);
+  const [deepLinkProcessed, setDeepLinkProcessed] = useState(false);
+
+  // URL parametrelerini işleyen fonksiyon
+  const handleDeepLink = () => {
+    if (deepLinkProcessed) return false;
+
+    const searchParams = new URLSearchParams(location.search);
+    const roomParam = searchParams.get("room");
+
+    if (roomParam) {
+      console.log("Deep Link: Room code found in URL:", roomParam);
+
+      // İlk olarak splash ve oyun modu ekranlarını kapat
+      setShowSplash(false);
+      setShowGameModeSelect(false);
+      setShowMultiplayerOptions(false);
+
+      // Odaya katılma işlemini başlat ve işlendiğini işaretle
+      joinRoom(roomParam);
+      setDeepLinkProcessed(true);
+
+      // URL'den parametre kaldırılıyor
+      navigate("/", { replace: true });
+
+      return true;
+    }
+    return false;
+  };
 
   useEffect(() => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const roomParam = urlParams.get("room");
+    // Deep link kontrolü - her URL değişikliğinde çalışır
+    const hasJoinedRoom = handleDeepLink();
 
-    if (roomParam && !isMultiplayer) {
-      joinRoom(roomParam);
-      window.history.replaceState({}, document.title, window.location.pathname);
+    // Eğer bir odaya katılmadıysak ve deep link işlemi yoksa normal açılış akışını sürdürüyoruz
+    if (!hasJoinedRoom && !deepLinkProcessed) {
+      // Eğer /join path'inde isek multiplayer ekranını göster
+      if (location.pathname === "/join") {
+        setShowSplash(false);
+        setShowGameModeSelect(false);
+        setShowMultiplayerOptions(true);
+      }
     }
-  }, [joinRoom, isMultiplayer]);
+  }, [location, deepLinkProcessed]);
+
+  // Bu effect yalnızca bileşen yüklendiğinde bir kez çalışır
+  useEffect(() => {
+    // Socket bağlantısını kontrol et ve aktif olduğundan emin ol
+    console.log("App mounted, checking connection status");
+
+    // Temizleme fonksiyonu
+    return () => {
+      console.log("App unmounted, cleaning up");
+      setDeepLinkProcessed(false);
+    };
+  }, []);
 
   const handleSplashComplete = () => {
     setShowSplash(false);

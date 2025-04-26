@@ -61,6 +61,7 @@ if (process.env.NODE_ENV === "production") {
   app.use(express.static(clientDistPath));
 
   // Send index.html for any route that doesn't match an API or static file
+  // Tüm rotaları index.html'e yönlendir (SPA için gerekli)
   app.get("*", (req, res) => {
     res.sendFile(path.join(clientDistPath, "index.html"));
   });

@@ -22,12 +22,27 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
   };
 
   const shareToWhatsApp = () => {
-    const gameUrl = `${window.location.origin}${window.location.pathname}?room=${roomId}`;
+    // Deep linking ile oyun davet bağlantısı oluşturma
+    // Tam URL'yi oluşturma (localhost veya canlı sunucu)
+    const baseUrl = window.location.origin;
+    const gameUrl = `${baseUrl}/join?room=${roomId}`;
     const message = `Hadi birlikte satranç oynayalım! ${gameUrl}`;
-    window.open(
-      `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
-      "_blank"
-    );
+
+    console.log("Paylaşılacak bağlantı:", gameUrl);
+
+    // Mobil cihazlarda WhatsApp uygulamasını açmak için
+    if (/Android|iPhone|iPad|iPod/i.test(navigator.userAgent)) {
+      window.open(
+        `whatsapp://send?text=${encodeURIComponent(message)}`,
+        "_blank"
+      );
+    } else {
+      // Masaüstü cihazlarda web WhatsApp'ı açmak için
+      window.open(
+        `https://web.whatsapp.com/send?text=${encodeURIComponent(message)}`,
+        "_blank"
+      );
+    }
   };
 
   return (
