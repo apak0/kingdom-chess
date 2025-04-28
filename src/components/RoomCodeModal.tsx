@@ -13,7 +13,7 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
   isOpen,
   roomId,
   onClose,
-  nickname = "Anonim", // Varsayılan değer
+  nickname = "", // Varsayılan değer
 }) => {
   const [copied, setCopied] = useState(false);
 
@@ -29,7 +29,7 @@ export const RoomCodeModal: React.FC<RoomCodeModalProps> = ({
     const baseUrl = window.location.origin;
     const gameUrl = `${baseUrl}/join?room=${roomId}`;
     // Nickname'i davet mesajına ekleyelim
-    const message = `${nickname} seni satranç oynamaya davet ediyor! Hadi birlikte oynayalım! ${gameUrl}`;
+    const message = `Hadi birlikte oynayalım! ${gameUrl}`;
 
     console.log("Paylaşılacak bağlantı:", gameUrl);
 
