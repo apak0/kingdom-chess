@@ -18,7 +18,27 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
     setSelectedMode(mode);
     setTimeout(() => {
       onSelectMode(mode);
-    }, 1000);
+    }, 1500); // Animasyon için süreyi uzattım
+  };
+
+  // Seçim animasyonu için daha karmaşık bir varyant tanımlıyorum
+  const selectAnimationVariants = {
+    initial: { scale: 1, opacity: 1 },
+    selected: {
+      scale: 0.1, // Tamamen 0 yerine 0.1'e kadar küçülsün
+      opacity: 0,
+      transition: {
+        scale: {
+          duration: 1.2,
+          ease: [0.32, 0.72, 0, 1], // Özel easing eğrisi
+        },
+        opacity: {
+          duration: 0.8,
+          delay: 0.5, // Önce küçülmeye başlasın, sonra saydamlık azalsın
+          ease: "easeOut",
+        },
+      },
+    },
   };
 
   return (
@@ -34,12 +54,11 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
           onClick={() => handleModeSelect("ai")}
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
-          animate={selectedMode === "ai" ? { scale: 0, opacity: 0 } : {}}
-          transition={{
-            duration: 0.3,
-            type: "spring",
-            stiffness: 300,
-          }}
+          animate={
+            selectedMode === "ai"
+              ? selectAnimationVariants.selected
+              : selectAnimationVariants.initial
+          }
           className="relative group"
         >
           <motion.div
@@ -60,13 +79,10 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
           whileHover={{ scale: 1.05 }}
           whileTap={{ scale: 0.95 }}
           animate={
-            selectedMode === "multiplayer" ? { scale: 0, opacity: 0 } : {}
+            selectedMode === "multiplayer"
+              ? selectAnimationVariants.selected
+              : selectAnimationVariants.initial
           }
-          transition={{
-            duration: 0.3,
-            type: "spring",
-            stiffness: 300,
-          }}
           className="relative group"
         >
           <motion.div

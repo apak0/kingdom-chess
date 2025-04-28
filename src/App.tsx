@@ -175,7 +175,7 @@ function GameScreen() {
           }}
         >
           {/* Navigation Buttons and Title */}
-          <div className="w-full px-4 flex justify-evenly items-center z-50 mb-8">
+          <div className="w-full px-4 flex justify-evenly items-center z-50 ">
             {/* Home Button */}
             <motion.button
               onClick={handleHomeClick}
