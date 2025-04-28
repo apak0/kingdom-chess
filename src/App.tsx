@@ -168,12 +168,7 @@ function GameScreen() {
       </AnimatePresence>
 
       {!showSplash && !showGameModeSelect && !showMultiplayerOptions && (
-        <div
-          className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-x-hidden"
-          style={{
-            paddingBottom: "200px",
-          }}
-        >
+        <div className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-x-hidden">
           {/* Navigation Buttons and Title */}
           <div className="w-full px-4 flex justify-evenly items-center z-50 ">
             {/* Home Button */}
