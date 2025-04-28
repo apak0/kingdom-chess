@@ -74,7 +74,7 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
           >
             <div
               className={`w-2.5 h-2.5 rounded-full ${
-                color === "white" ? "bg-white" : "bg-black"
+                color === "white" ? "bg-black" : "bg-black"
               }`}
             />
             <span className="text-[#DEB887] font-[MedievalSharp]">
@@ -113,7 +113,7 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
             </span>
             <div
               className={`w-2.5 h-2.5 rounded-full ${
-                color === "white" ? "bg-black" : "bg-white"
+                color === "white" ? "bg-white" : "bg-white"
               }`}
             />
           </motion.div>

@@ -526,11 +526,11 @@ export const useGameStore = create<GameState>((set, get) => ({
 
   sendChatMessage: (text: string) => {
     const state = get();
-    if (!state.roomId || !state.nickname) return;
+    if (!state.roomId || !state.playerNickname) return;
 
     const message = {
       id: crypto.randomUUID(),
-      sender: state.nickname,
+      sender: state.playerNickname,
       text,
       timestamp: Date.now(),
     };

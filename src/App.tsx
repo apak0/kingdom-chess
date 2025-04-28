@@ -229,8 +229,6 @@ function GameScreen() {
             <ChatBox
               messages={messages}
               onSendMessage={sendChatMessage}
-              playerNickname={nickname || "..."}
-              opponentNickname={opponentNickname || "..."}
               playerColor={playerColor || "white"}
             />
           )}

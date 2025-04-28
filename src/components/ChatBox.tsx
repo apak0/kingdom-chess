@@ -1,6 +1,7 @@
 import React, { useState, useRef, useEffect } from "react";
 import { Send, ChevronDown } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
+import { useGameStore } from "../store/gameStore";
 
 interface ChatBoxProps {
   messages: Array<{
@@ -10,18 +11,15 @@ interface ChatBoxProps {
     timestamp: number;
   }>;
   onSendMessage: (text: string) => void;
-  playerNickname: string;
-  opponentNickname: string;
   playerColor?: "white" | "black";
 }
 
 export const ChatBox: React.FC<ChatBoxProps> = ({
   messages,
   onSendMessage,
-  playerNickname,
-  opponentNickname,
   playerColor = "white",
 }) => {
+  const { playerNickname, opponentNickname } = useGameStore();
   const [isCollapsed, setIsCollapsed] = useState(true);
   const [message, setMessage] = useState("");
   const [hasNewMessage, setHasNewMessage] = useState(false);
@@ -139,9 +137,15 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
             onClick={() => setIsCollapsed(!isCollapsed)}
           >
             <div className="flex items-center justify-between text-xs sm:text-sm">
-              <div className="flex-1 text-[#DEB887]">
-                {playerColor === "white" ? "⚪" : "⚫"}{" "}
-                {playerNickname || "Oyuncu"}
+              <div className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2">
+                <div
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    playerColor === "white" ? "bg-white" : "bg-black"
+                  }`}
+                />
+                <span className="text-[#DEB887] font-[MedievalSharp]">
+                  {playerNickname}
+                </span>
               </div>
               <motion.div
                 animate={{ rotate: isCollapsed ? 180 : 0 }}
@@ -150,9 +154,15 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
               >
                 <ChevronDown className="w-5 h-5 text-[#DEB887]" />
               </motion.div>
-              <div className="flex-1 text-right text-[#DEB887]">
-                {playerColor === "white" ? "⚫" : "⚪"}{" "}
-                {opponentNickname || "Rakip"}
+              <div className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2">
+                <div
+                  className={`w-2.5 h-2.5 rounded-full ${
+                    playerColor === "white" ? "bg-black" : "bg-white"
+                  }`}
+                />
+                <span className="text-[#DEB887] font-[MedievalSharp]">
+                  {opponentNickname || "Rakip"}
+                </span>
               </div>
             </div>
           </div>
@@ -202,8 +212,8 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                         <div
                           className={`px-3 py-2 rounded-lg ${
                             msg.sender === playerNickname
-                              ? "bg-[#8B5E34] text-[#DEB887] rounded-tl-none"
-                              : "bg-[#6B4423] text-[#DEB887] rounded-tr-none"
+                              ? "bg-[#6B4423] text-[#DEB887] rounded-tl-none"
+                              : "bg-[#8B5E34] text-[#DEB887] rounded-tr-none"
                           }`}
                           style={{
                             maxWidth: "85%",
@@ -222,7 +232,9 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                                 : "text-right"
                             } w-full`}
                           >
-                            {msg.sender}
+                            {msg.sender === playerNickname
+                              ? playerNickname
+                              : opponentNickname}
                           </div>
                         )}
                       </div>
