@@ -152,6 +152,13 @@ interface GameState {
     text: string;
     timestamp: number;
   }>;
+  // Toast mesajlarını bir dizi olarak tutuyoruz
+  toastMessages: Array<{
+    id: string;
+    sender: string;
+    text: string;
+    timestamp: number;
+  }>;
   selectPiece: (position: Position) => void;
   movePiece: (from: Position, to: Position) => void;
   initializeBoard: () => void;
@@ -161,6 +168,8 @@ interface GameState {
   joinRoom: (roomId: string) => void;
   setNickname: (nickname: string) => void;
   sendChatMessage: (text: string) => void;
+  clearToastMessage: (id: string) => void;
+  clearAllToastMessages: () => void;
 }
 
 // Socket olaylarını temizleme helper fonksiyonu
@@ -202,6 +211,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   blackPlayerNickname: null,
   showNicknameModal: false,
   messages: [],
+  toastMessages: [],
 
   selectPiece: (position) =>
     set((state) => {
@@ -307,13 +317,13 @@ export const useGameStore = create<GameState>((set, get) => ({
           };
           // Yakalanan taşlar doğru listeye eklenmeli
           newCapturedPieces[capturedColor].push(capturedPiece);
-          
+
           // Debug bilgisi
           console.log("Taş yeme işlemi:", {
             hamleYapan: moveResult.color === "w" ? "beyaz" : "siyah",
             yakalananTaş: capturedType,
             yakalananRenk: capturedColor,
-            yeniDurum: newCapturedPieces
+            yeniDurum: newCapturedPieces,
           });
         }
 
@@ -480,6 +490,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       blackPlayerNickname: null,
       showNicknameModal: false,
       messages: [],
+      toastMessages: [],
     });
   },
 
@@ -559,6 +570,18 @@ export const useGameStore = create<GameState>((set, get) => ({
     }));
   },
 
+  clearToastMessage: (id: string) =>
+    set((state) => ({
+      ...state,
+      toastMessages: state.toastMessages.filter((message) => message.id !== id),
+    })),
+
+  clearAllToastMessages: () =>
+    set((state) => ({
+      ...state,
+      toastMessages: [],
+    })),
+
   createRoom: () => {
     // Önceki event listener'ları temizle
     cleanupSocketListeners();
@@ -598,6 +621,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           type: "check",
         },
         showNicknameModal: true,
+        toastMessages: [],
       });
     });
 
@@ -644,13 +668,13 @@ export const useGameStore = create<GameState>((set, get) => ({
             };
             // Yakalanan taşlar doğru listeye eklenmeli
             newCapturedPieces[capturedColor].push(capturedPiece);
-            
+
             // Debug bilgisi
             console.log("Taş yeme işlemi:", {
               hamleYapan: moveResult.color === "w" ? "beyaz" : "siyah",
               yakalananTaş: capturedType,
               yakalananRenk: capturedColor,
-              yeniDurum: newCapturedPieces
+              yeniDurum: newCapturedPieces,
             });
           }
 
@@ -743,6 +767,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           blackPlayerNickname: null,
           showNicknameModal: false,
           messages: [],
+          toastMessages: [],
         });
       }, 3000);
     });
@@ -765,13 +790,28 @@ export const useGameStore = create<GameState>((set, get) => ({
     socket.on("chatMessage", (message) => {
       console.log("chatMessage event received:", message);
       const state = get();
+
       // Mesajın daha önce eklenip eklenmediğini kontrol et
       const messageExists = state.messages.some((m) => m.id === message.id);
       if (!messageExists) {
-        set((state) => ({
-          ...state,
-          messages: [...state.messages, message],
-        }));
+        // Eğer gelen mesaj karşı taraftan geliyorsa toast mesajı göster
+        if (message.sender !== state.playerNickname) {
+          set((state) => {
+            // Maksimum 2 toast mesajı göster, yeni mesaj eklendiğinde en eskisi çıkar (FIFO)
+            const updatedToasts = [message, ...state.toastMessages].slice(0, 2);
+            
+            return {
+              ...state,
+              messages: [...state.messages, message],
+              toastMessages: updatedToasts,
+            };
+          });
+        } else {
+          set((state) => ({
+            ...state,
+            messages: [...state.messages, message],
+          }));
+        }
       }
     });
   },
@@ -824,6 +864,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           type: "check",
         },
         showNicknameModal: true,
+        toastMessages: [],
       });
     });
 
@@ -880,13 +921,13 @@ export const useGameStore = create<GameState>((set, get) => ({
             };
             // Yakalanan taşlar doğru listeye eklenmeli
             newCapturedPieces[capturedColor].push(capturedPiece);
-            
+
             // Debug bilgisi
             console.log("Taş yeme işlemi:", {
               hamleYapan: moveResult.color === "w" ? "beyaz" : "siyah",
               yakalananTaş: capturedType,
               yakalananRenk: capturedColor,
-              yeniDurum: newCapturedPieces
+              yeniDurum: newCapturedPieces,
             });
           }
 
@@ -979,6 +1020,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           blackPlayerNickname: null,
           showNicknameModal: false,
           messages: [],
+          toastMessages: [],
         });
       }, 3000);
     });
@@ -1001,13 +1043,28 @@ export const useGameStore = create<GameState>((set, get) => ({
     socket.on("chatMessage", (message) => {
       console.log("chatMessage event received:", message);
       const state = get();
+
       // Mesajın daha önce eklenip eklenmediğini kontrol et
       const messageExists = state.messages.some((m) => m.id === message.id);
       if (!messageExists) {
-        set((state) => ({
-          ...state,
-          messages: [...state.messages, message],
-        }));
+        // Eğer gelen mesaj karşı taraftan geliyorsa toast mesajı göster
+        if (message.sender !== state.playerNickname) {
+          set((state) => {
+            // Maksimum 2 toast mesajı göster, yeni mesaj eklendiğinde en eskisi çıkar (FIFO)
+            const updatedToasts = [message, ...state.toastMessages].slice(0, 2);
+            
+            return {
+              ...state,
+              messages: [...state.messages, message],
+              toastMessages: updatedToasts,
+            };
+          });
+        } else {
+          set((state) => ({
+            ...state,
+            messages: [...state.messages, message],
+          }));
+        }
       }
     });
   },

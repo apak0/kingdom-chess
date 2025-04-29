@@ -12,6 +12,7 @@ import { GameModeModal } from "./components/GameModeModal";
 import { MultiplayerOptionsModal } from "./components/MultiplayerOptionsModal";
 import { RoomCodeModal } from "./components/RoomCodeModal";
 import { useGameStore } from "./store/gameStore";
+import { ToastContainer } from "./components/Toast";
 
 // Ana uygulama içinde artık BrowserRouter yok, doğrudan Routes
 function App() {
@@ -47,6 +48,8 @@ function GameScreen() {
     opponentNickname,
     messages,
     sendChatMessage,
+    toastMessages,
+    clearToastMessage,
   } = useGameStore();
 
   const [showSplash, setShowSplash] = useState(true);
@@ -149,6 +152,9 @@ function GameScreen() {
 
   return (
     <div className="relative">
+      {/* Toast Notifications */}
+      <ToastContainer messages={toastMessages} onClose={clearToastMessage} />
+
       <div
         className="fixed inset-0"
         style={{
@@ -173,7 +179,6 @@ function GameScreen() {
           className="flex flex-col p-4  relative overflow-x-hidden"
           style={{
             minHeight: "calc(100vh - 100px)",
-            
           }}
         >
           {/* Navigation Buttons and Title */}
