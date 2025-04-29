@@ -21,20 +21,46 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
     }, 1500); // Animasyon için süreyi uzattım
   };
 
-  // Seçim animasyonu için daha karmaşık bir varyant tanımlıyorum
+  // Masaüstü ve mobil için aynı seçim animasyonu
   const selectAnimationVariants = {
-    initial: { scale: 1, opacity: 1 },
+    initial: {
+      scale: 1,
+      opacity: 1,
+    },
     selected: {
-      scale: 0.1, // Tamamen 0 yerine 0.1'e kadar küçülsün
+      scale: 0, // Tam olarak 0'a küçülsün - mobil ekranlardaki gibi
       opacity: 0,
       transition: {
         scale: {
-          duration: 1.2,
-          ease: [0.32, 0.72, 0, 1], // Özel easing eğrisi
+          duration: 0.5, // Mobil ile aynı sürede küçülsün
+          ease: "easeIn", // Daha doğal bir küçülme hissi için
         },
         opacity: {
-          duration: 0.8,
-          delay: 0.5, // Önce küçülmeye başlasın, sonra saydamlık azalsın
+          duration: 0.3,
+          delay: 0.2, // Önce küçülmeye başlasın, sonra saydamlık azalsın
+          ease: "easeOut",
+        },
+      },
+    },
+  };
+
+  // Resim için özel animasyon varyantları
+  const imageAnimationVariants = {
+    initial: {
+      scale: 1,
+      opacity: 1,
+    },
+    selected: {
+      scale: 0, // Tam olarak 0'a küçülsün
+      opacity: 0,
+      transition: {
+        scale: {
+          duration: 0.7, // Biraz daha uzun sürede küçülsün
+          ease: "easeIn",
+        },
+        opacity: {
+          duration: 0.5,
+          delay: 0.2,
           ease: "easeOut",
         },
       },
@@ -64,12 +90,25 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
           <motion.div
             className="absolute -inset-1 bg-gradient-to-br from-[#DEB887] to-[#8B5E34] rounded-lg opacity-50 group-hover:opacity-100 transition-opacity duration-300"
             style={{ filter: "blur(8px)" }}
+            animate={
+              selectedMode === "ai"
+                ? { scale: 0, opacity: 0 }
+                : { scale: 1, opacity: 0.5 }
+            }
+            transition={{
+              duration: 0.4,
+            }}
           />
           <motion.div className="relative">
-            <img
+            <motion.img
               src="/assets/play-with-ai.png"
               alt="AI ile Oyna"
               className="w-[200px] md:w-[500px] h-[133px] md:h-[332px] rounded-lg object-cover"
+              animate={
+                selectedMode === "ai"
+                  ? imageAnimationVariants.selected
+                  : imageAnimationVariants.initial
+              }
             />
           </motion.div>
         </motion.button>
@@ -88,12 +127,25 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
           <motion.div
             className="absolute -inset-1 bg-gradient-to-br from-[#DEB887] to-[#8B5E34] rounded-lg opacity-50 group-hover:opacity-100 transition-opacity duration-300"
             style={{ filter: "blur(8px)" }}
+            animate={
+              selectedMode === "multiplayer"
+                ? { scale: 0, opacity: 0 }
+                : { scale: 1, opacity: 0.5 }
+            }
+            transition={{
+              duration: 0.4,
+            }}
           />
           <motion.div className="relative">
-            <img
+            <motion.img
               src="/assets/play-with-friend.png"
               alt="Arkadaşınla Oyna"
               className="w-[200px] md:w-[500px] h-[150px] md:h-[332px] rounded-lg object-cover"
+              animate={
+                selectedMode === "multiplayer"
+                  ? imageAnimationVariants.selected
+                  : imageAnimationVariants.initial
+              }
             />
           </motion.div>
         </motion.button>
