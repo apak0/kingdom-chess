@@ -297,15 +297,24 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         if (moveResult.captured) {
           const capturedType = pieceTypeMap[moveResult.captured];
+          // Burada düzeltme yapıyorum: Beyaz taş siyah taşı yediğinde, yakalanan taş siyah olmalı
+          // moveResult.color hamleyi yapan taşın rengidir, yakalanan taşın değil
+          const capturedColor = moveResult.color === "w" ? "black" : "white";
           const capturedPiece: PieceType = {
             type: capturedType as PieceType["type"],
-            color: (moveResult.color === "w" ? "black" : "white") as PieceColor,
+            color: capturedColor as PieceColor,
             hasMoved: true,
           };
-          // Yakalanan taş karşı tarafa eklenir
-          newCapturedPieces[moveResult.color === "w" ? "black" : "white"].push(
-            capturedPiece
-          );
+          // Yakalanan taşlar doğru listeye eklenmeli
+          newCapturedPieces[capturedColor].push(capturedPiece);
+          
+          // Debug bilgisi
+          console.log("Taş yeme işlemi:", {
+            hamleYapan: moveResult.color === "w" ? "beyaz" : "siyah",
+            yakalananTaş: capturedType,
+            yakalananRenk: capturedColor,
+            yeniDurum: newCapturedPieces
+          });
         }
 
         // Multiplayer modunda hamleyi gönder
@@ -625,13 +634,24 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           if (moveResult.captured) {
             const capturedType = pieceTypeMap[moveResult.captured];
+            // Burada düzeltme yapıyorum: Beyaz taş siyah taşı yediğinde, yakalanan taş siyah olmalı
+            // moveResult.color hamleyi yapan taşın rengidir, yakalanan taşın değil
             const capturedColor = moveResult.color === "w" ? "black" : "white";
             const capturedPiece: PieceType = {
               type: capturedType as PieceType["type"],
               color: capturedColor as PieceColor,
               hasMoved: true,
             };
+            // Yakalanan taşlar doğru listeye eklenmeli
             newCapturedPieces[capturedColor].push(capturedPiece);
+            
+            // Debug bilgisi
+            console.log("Taş yeme işlemi:", {
+              hamleYapan: moveResult.color === "w" ? "beyaz" : "siyah",
+              yakalananTaş: capturedType,
+              yakalananRenk: capturedColor,
+              yeniDurum: newCapturedPieces
+            });
           }
 
           const isInCheckmate = state.chess.isCheckmate();
@@ -850,13 +870,24 @@ export const useGameStore = create<GameState>((set, get) => ({
 
           if (moveResult.captured) {
             const capturedType = pieceTypeMap[moveResult.captured];
+            // Burada düzeltme yapıyorum: Beyaz taş siyah taşı yediğinde, yakalanan taş siyah olmalı
+            // moveResult.color hamleyi yapan taşın rengidir, yakalanan taşın değil
             const capturedColor = moveResult.color === "w" ? "black" : "white";
             const capturedPiece: PieceType = {
               type: capturedType as PieceType["type"],
               color: capturedColor as PieceColor,
               hasMoved: true,
             };
+            // Yakalanan taşlar doğru listeye eklenmeli
             newCapturedPieces[capturedColor].push(capturedPiece);
+            
+            // Debug bilgisi
+            console.log("Taş yeme işlemi:", {
+              hamleYapan: moveResult.color === "w" ? "beyaz" : "siyah",
+              yakalananTaş: capturedType,
+              yakalananRenk: capturedColor,
+              yeniDurum: newCapturedPieces
+            });
           }
 
           const isInCheckmate = state.chess.isCheckmate();

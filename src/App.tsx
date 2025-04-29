@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
+import { Swords } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
@@ -175,7 +176,7 @@ function GameScreen() {
           }}
         >
           {/* Navigation Buttons and Title */}
-          <div className="w-full px-4 flex justify-evenly items-center z-50 ">
+          <div className="w-full px-4 flex justify-evenly items-center z-50 md:hidden">
             {/* Home Button */}
             <motion.button
               onClick={handleHomeClick}
@@ -185,12 +186,12 @@ function GameScreen() {
               <img
                 src="/assets/home-button.png"
                 alt="Ana Menü"
-                className="w-[100px] md:w-[180px] rounded-lg"
+                className="w-[100px] md:w-[90px] rounded-lg"
               />
             </motion.button>
 
-            {/* Kingdom of Harpoon Title */}
-            <div className="w-[150px] md:w-[200px]">
+            {/* Kingdom of Harpoon Title - Desktop'ta gizlendi */}
+            <div className="w-[150px] md:hidden">
               <img
                 src="/assets/title-sign-table.png"
                 alt="Kingdom of Harpoon"
@@ -207,7 +208,7 @@ function GameScreen() {
               <img
                 src="/assets/restart-button.png"
                 alt="Oyunu Sıfırla"
-                className="w-[100px] md:w-[180px] rounded-lg"
+                className="w-[100px] md:w-[90px] rounded-lg"
               />
             </motion.button>
           </div>
@@ -235,6 +236,75 @@ function GameScreen() {
 
           <div className="w-full flex flex-col items-center">
             <div className="w-full max-w-[1200px] flex flex-col items-center px-2 md:px-0 z-10">
+              {/* Player Names with VS icon - Only visible on mobile */}
+              <div className="md:hidden flex items-center justify-center gap-4 w-full mb-4">
+                <motion.div
+                  initial={{ boxShadow: "none" }}
+                  animate={
+                    (isMultiplayer && playerColor === currentPlayer) ||
+                    (!isMultiplayer && currentPlayer === "white")
+                      ? {
+                          boxShadow: [
+                            "0 0 0px rgba(255, 215, 0, 0)",
+                            "0 0 15px rgba(255, 215, 0, 0.7)",
+                            "0 0 0px rgba(255, 215, 0, 0)",
+                          ],
+                        }
+                      : { boxShadow: "none" }
+                  }
+                  transition={
+                    (isMultiplayer && playerColor === currentPlayer) ||
+                    (!isMultiplayer && currentPlayer === "white")
+                      ? {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }
+                      : { duration: 0.3 }
+                  }
+                  className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
+                >
+                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                  <span className="text-[#DEB887] font-[MedievalSharp]">
+                    {isMultiplayer ? nickname || "Sen" : "Sen"}
+                  </span>
+                </motion.div>
+
+                <Swords className="w-6 h-6 text-[#DEB887]" />
+
+                <motion.div
+                  initial={{ boxShadow: "none" }}
+                  animate={
+                    (isMultiplayer && playerColor !== currentPlayer) ||
+                    (!isMultiplayer && currentPlayer === "black")
+                      ? {
+                          boxShadow: [
+                            "0 0 0px rgba(255, 215, 0, 0)",
+                            "0 0 15px rgba(255, 215, 0, 0.7)",
+                            "0 0 0px rgba(255, 215, 0, 0)",
+                          ],
+                        }
+                      : { boxShadow: "none" }
+                  }
+                  transition={
+                    (isMultiplayer && playerColor !== currentPlayer) ||
+                    (!isMultiplayer && currentPlayer === "black")
+                      ? {
+                          duration: 2,
+                          repeat: Infinity,
+                          ease: "easeInOut",
+                        }
+                      : { duration: 0.3 }
+                  }
+                  className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
+                >
+                  <span className="text-[#DEB887] font-[MedievalSharp]">
+                    {isMultiplayer ? opponentNickname || "Rakip" : "AI"}
+                  </span>
+                  <div className="w-2.5 h-2.5 rounded-full bg-black" />
+                </motion.div>
+              </div>
+
               <div className="w-full flex justify-center items-center mb-4">
                 <motion.div
                   initial={{ opacity: 0, y: -20 }}
@@ -256,33 +326,132 @@ function GameScreen() {
                 </motion.div>
               </div>
 
-              <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8">
-                {isMultiplayer && playerColor === "black" ? (
-                  <>
+              {/* Mobile: Vertical Layout, Desktop: Horizontal Layout */}
+              {isMultiplayer && playerColor === "black" ? (
+                <>
+                  {/* Mobile Layout - Vertical */}
+                  <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8 md:hidden">
                     <CapturedPieces
                       pieces={capturedPieces.white}
                       color="white"
+                      position="top"
                     />
                     <Board />
                     <CapturedPieces
                       pieces={capturedPieces.black}
                       color="black"
+                      position="bottom"
                     />
-                  </>
-                ) : (
-                  <>
+                  </div>
+
+                  {/* Desktop Layout - Horizontal with Side Navigation */}
+                  <div className="hidden md:flex items-center justify-center gap-8 mt-8">
+                    {/* Left navigation (Home button) */}
+                    <div className="flex flex-col items-center justify-center">
+                      <motion.button
+                        onClick={handleHomeClick}
+                        title="Ana Menü"
+                        className="transition-transform duration-300 ease-in-out hover:scale-110 mb-6"
+                      >
+                        <img
+                          src="/assets/home-button.png"
+                          alt="Ana Menü"
+                          className="w-[100px] xl:w-[120px] rounded-lg"
+                        />
+                      </motion.button>
+                    </div>
+
+                    <CapturedPieces
+                      pieces={capturedPieces.white}
+                      color="white"
+                      position="left"
+                    />
+                    <Board />
                     <CapturedPieces
                       pieces={capturedPieces.black}
                       color="black"
+                      position="right"
+                    />
+
+                    {/* Right navigation (Restart button) */}
+                    <div className="flex flex-col items-center justify-center">
+                      <motion.button
+                        onClick={initializeBoard}
+                        title="Oyunu Sıfırla"
+                        className="transition-transform duration-300 ease-in-out hover:scale-110 mb-6"
+                      >
+                        <img
+                          src="/assets/restart-button.png"
+                          alt="Oyunu Sıfırla"
+                          className="w-[100px] xl:w-[120px] rounded-lg"
+                        />
+                      </motion.button>
+                    </div>
+                  </div>
+                </>
+              ) : (
+                <>
+                  {/* Mobile Layout - Vertical */}
+                  <div className="flex flex-col items-center gap-1 md:gap-2 mt-4 md:mt-8 md:hidden">
+                    <CapturedPieces
+                      pieces={capturedPieces.black}
+                      color="black"
+                      position="top"
                     />
                     <Board />
                     <CapturedPieces
                       pieces={capturedPieces.white}
                       color="white"
+                      position="bottom"
                     />
-                  </>
-                )}
-              </div>
+                  </div>
+
+                  {/* Desktop Layout - Horizontal with Side Navigation */}
+                  <div className="hidden md:flex items-start justify-center gap-8 mt-8">
+                    {/* Left navigation (Home button) */}
+                    <div className="flex flex-col items-center justify-center">
+                      <motion.button
+                        onClick={handleHomeClick}
+                        title="Ana Menü"
+                        className="transition-transform duration-300 ease-in-out hover:scale-110 mb-6"
+                      >
+                        <img
+                          src="/assets/home-button.png"
+                          alt="Ana Menü"
+                          className="w-[100px] xl:w-[120px] rounded-lg"
+                        />
+                      </motion.button>
+                    </div>
+
+                    <CapturedPieces
+                      pieces={capturedPieces.black}
+                      color="black"
+                      position="left"
+                    />
+                    <Board />
+                    <CapturedPieces
+                      pieces={capturedPieces.white}
+                      color="white"
+                      position="right"
+                    />
+
+                    {/* Right navigation (Restart button) */}
+                    <div className="flex flex-col items-center justify-center">
+                      <motion.button
+                        onClick={initializeBoard}
+                        title="Oyunu Sıfırla"
+                        className="transition-transform duration-300 ease-in-out hover:scale-110 mb-6"
+                      >
+                        <img
+                          src="/assets/restart-button.png"
+                          alt="Oyunu Sıfırla"
+                          className="w-[100px] xl:w-[120px] rounded-lg"
+                        />
+                      </motion.button>
+                    </div>
+                  </div>
+                </>
+              )}
             </div>
           </div>
 
