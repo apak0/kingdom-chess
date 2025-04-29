@@ -25,8 +25,8 @@ export const CapturedPieces: React.FC<CapturedPiecesProps> = ({
 
   // Adjust pieces container size based on position
   const piecesContainerClasses = isVertical
-    ? "bg-[#6B4423] p-1.5 rounded-lg h-[80px] w-[320px] md:w-[600px] md:h-[45px] md:p-2 border-2 border-[#4A3728] max-w-[95vw]"
-    : "bg-[#6B4423] p-1.5 rounded-lg h-[320px] w-[45px] border-2 border-[#4A3728] hidden md:flex flex-col";
+    ? "bg-[#6B4423] p-1.5 rounded-lg h-[65px] w-[320px] md:w-[600px] md:h-[45px] md:p-2 border-2 border-[#4A3728] max-w-[95vw]"
+    : "bg-[#6B4423] p-1.5 rounded-lg h-[480px] w-[45px] border-2 border-[#4A3728] hidden md:flex flex-col";
 
   // Direction of pieces layout based on position
   const piecesLayoutClasses = isVertical

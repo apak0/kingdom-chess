@@ -170,9 +170,10 @@ function GameScreen() {
 
       {!showSplash && !showGameModeSelect && !showMultiplayerOptions && (
         <div
-          className="min-h-screen flex flex-col p-4 md:p-8 relative overflow-x-hidden"
+          className="flex flex-col p-4  relative overflow-x-hidden"
           style={{
-            paddingBottom: "100px",
+            minHeight: "calc(100vh - 100px)",
+            
           }}
         >
           {/* Navigation Buttons and Title */}
