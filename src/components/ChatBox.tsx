@@ -161,7 +161,7 @@ export const ChatBox: React.FC<ChatBoxProps> = ({
                   }`}
                 />
                 <span className="text-[#DEB887] font-[MedievalSharp]">
-                  {opponentNickname || "Rakip"}
+                  {opponentNickname || "?"}
                 </span>
               </div>
             </div>

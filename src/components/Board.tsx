@@ -31,8 +31,8 @@ export const Board: React.FC = () => {
 
   const rightNickname = isMultiplayer
     ? playerColor === "white"
-      ? opponentNickname || "Siyah"
-      : playerNickname || "Siyah"
+      ? opponentNickname || "?"
+      : playerNickname || "?"
     : "AI";
 
   const isLeftTurn =
@@ -71,9 +71,9 @@ export const Board: React.FC = () => {
           className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
         >
           <div className="w-2.5 h-2.5 rounded-full bg-white" />
-          <span className="text-[#DEB887] font-[MedievalSharp]">
-            {leftNickname}
-          </span>
+            <span className="text-[#DEB887] font-[MedievalSharp]">
+              {leftNickname}
+            </span>
         </motion.div>
 
         <Swords className="w-6 h-6 text-[#DEB887]" />
