@@ -159,6 +159,14 @@ interface GameState {
     text: string;
     timestamp: number;
   }>;
+  // Son hamle bilgisini tutacak yapı
+  lastMove: {
+    piece: PieceType | null;
+    from: string;
+    to: string;
+    playerColor: PieceColor;
+    playerName: string | null;
+  } | null;
   selectPiece: (position: Position) => void;
   movePiece: (from: Position, to: Position) => void;
   initializeBoard: () => void;
@@ -212,6 +220,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   showNicknameModal: false,
   messages: [],
   toastMessages: [],
+  lastMove: null,
 
   selectPiece: (position) =>
     set((state) => {
@@ -384,6 +393,13 @@ export const useGameStore = create<GameState>((set, get) => ({
                 type: "check" as const,
               }
             : state.modalState,
+          lastMove: {
+            piece,
+            from: fromSquare,
+            to: toSquare,
+            playerColor: state.currentPlayer,
+            playerName: state.playerNickname,
+          },
         };
 
         // Tek oyuncu modunda ve oyun bitmemişse AI hamlesi yap
@@ -491,6 +507,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       showNicknameModal: false,
       messages: [],
       toastMessages: [],
+      lastMove: null,
     });
   },
 
@@ -622,6 +639,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
         showNicknameModal: true,
         toastMessages: [],
+        lastMove: null,
       });
     });
 
@@ -717,6 +735,19 @@ export const useGameStore = create<GameState>((set, get) => ({
                   type: "check" as const,
                 }
               : { ...state.modalState, isOpen: false },
+            lastMove: {
+              piece: convertPieceFromChess({
+                type: moveResult.piece,
+                color: moveResult.color,
+              }),
+              from: move.from,
+              to: move.to,
+              playerColor: moveResult.color === "w" ? "white" : "black",
+              playerName:
+                moveResult.color === "w"
+                  ? state.whitePlayerNickname
+                  : state.blackPlayerNickname,
+            },
           });
         }
       } catch (error) {
@@ -768,6 +799,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           showNicknameModal: false,
           messages: [],
           toastMessages: [],
+          lastMove: null,
         });
       }, 3000);
     });
@@ -799,7 +831,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           set((state) => {
             // Maksimum 2 toast mesajı göster, yeni mesaj eklendiğinde en eskisi çıkar (FIFO)
             const updatedToasts = [message, ...state.toastMessages].slice(0, 2);
-            
+
             return {
               ...state,
               messages: [...state.messages, message],
@@ -865,6 +897,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         },
         showNicknameModal: true,
         toastMessages: [],
+        lastMove: null,
       });
     });
 
@@ -970,6 +1003,19 @@ export const useGameStore = create<GameState>((set, get) => ({
                   type: "check" as const,
                 }
               : { ...state.modalState, isOpen: false },
+            lastMove: {
+              piece: convertPieceFromChess({
+                type: moveResult.piece,
+                color: moveResult.color,
+              }),
+              from: move.from,
+              to: move.to,
+              playerColor: moveResult.color === "w" ? "white" : "black",
+              playerName:
+                moveResult.color === "w"
+                  ? state.whitePlayerNickname
+                  : state.blackPlayerNickname,
+            },
           });
         }
       } catch (error) {
@@ -1021,6 +1067,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           showNicknameModal: false,
           messages: [],
           toastMessages: [],
+          lastMove: null,
         });
       }, 3000);
     });
@@ -1052,7 +1099,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           set((state) => {
             // Maksimum 2 toast mesajı göster, yeni mesaj eklendiğinde en eskisi çıkar (FIFO)
             const updatedToasts = [message, ...state.toastMessages].slice(0, 2);
-            
+
             return {
               ...state,
               messages: [...state.messages, message],

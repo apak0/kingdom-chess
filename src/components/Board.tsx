@@ -4,6 +4,16 @@ import { Swords } from "lucide-react";
 import { Square } from "./Square";
 import { useGameStore } from "../store/gameStore";
 
+// Taş ikonları için obje
+const pieceIcons = {
+  pawn: "chess-pawn",
+  rook: "chess-rook",
+  knight: "chess-knight",
+  bishop: "chess-bishop",
+  queen: "chess-queen",
+  king: "chess-king",
+};
+
 export const Board: React.FC = () => {
   const {
     currentPlayer,
@@ -11,6 +21,7 @@ export const Board: React.FC = () => {
     isMultiplayer,
     playerNickname,
     opponentNickname,
+    lastMove,
   } = useGameStore();
 
   // Tahtayı çevirmek için gereken değişkenler
@@ -45,68 +56,91 @@ export const Board: React.FC = () => {
   return (
     <div className="relative flex flex-col items-center">
       {/* Player Names with VS icon - Only visible on desktop */}
-      <div className="hidden md:flex items-center justify-center gap-4 w-full mb-4">
-        <motion.div
-          initial={{ boxShadow: "none" }}
-          animate={
-            isLeftTurn
-              ? {
-                  boxShadow: [
-                    "0 0 0px rgba(255, 215, 0, 0)",
-                    "0 0 15px rgba(255, 215, 0, 0.7)",
-                    "0 0 0px rgba(255, 215, 0, 0)",
-                  ],
-                }
-              : { boxShadow: "none" }
-          }
-          transition={
-            isLeftTurn
-              ? {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }
-              : { duration: 0.3 }
-          }
-          className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
-        >
-          <div className="w-2.5 h-2.5 rounded-full bg-white" />
+      <div className="hidden md:flex flex-col items-center w-full mb-4">
+        <div className="flex items-center justify-center gap-4 w-full">
+          <motion.div
+            initial={{ boxShadow: "none" }}
+            animate={
+              isLeftTurn
+                ? {
+                    boxShadow: [
+                      "0 0 0px rgba(255, 215, 0, 0)",
+                      "0 0 15px rgba(255, 215, 0, 0.7)",
+                      "0 0 0px rgba(255, 215, 0, 0)",
+                    ],
+                  }
+                : { boxShadow: "none" }
+            }
+            transition={
+              isLeftTurn
+                ? {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }
+                : { duration: 0.3 }
+            }
+            className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
+          >
+            <div className="w-2.5 h-2.5 rounded-full bg-white" />
             <span className="text-[#DEB887] font-[MedievalSharp]">
               {leftNickname}
             </span>
-        </motion.div>
+          </motion.div>
 
-        <Swords className="w-6 h-6 text-[#DEB887]" />
+          <Swords className="w-6 h-6 text-[#DEB887]" />
 
-        <motion.div
-          initial={{ boxShadow: "none" }}
-          animate={
-            isRightTurn
-              ? {
-                  boxShadow: [
-                    "0 0 0px rgba(255, 215, 0, 0)",
-                    "0 0 15px rgba(255, 215, 0, 0.7)",
-                    "0 0 0px rgba(255, 215, 0, 0)",
-                  ],
-                }
-              : { boxShadow: "none" }
-          }
-          transition={
-            isRightTurn
-              ? {
-                  duration: 2,
-                  repeat: Infinity,
-                  ease: "easeInOut",
-                }
-              : { duration: 0.3 }
-          }
-          className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
-        >
-          <span className="text-[#DEB887] font-[MedievalSharp]">
-            {rightNickname}
-          </span>
-          <div className="w-2.5 h-2.5 rounded-full bg-black" />
-        </motion.div>
+          <motion.div
+            initial={{ boxShadow: "none" }}
+            animate={
+              isRightTurn
+                ? {
+                    boxShadow: [
+                      "0 0 0px rgba(255, 215, 0, 0)",
+                      "0 0 15px rgba(255, 215, 0, 0.7)",
+                      "0 0 0px rgba(255, 215, 0, 0)",
+                    ],
+                  }
+                : { boxShadow: "none" }
+            }
+            transition={
+              isRightTurn
+                ? {
+                    duration: 2,
+                    repeat: Infinity,
+                    ease: "easeInOut",
+                  }
+                : { duration: 0.3 }
+            }
+            className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
+          >
+            <span className="text-[#DEB887] font-[MedievalSharp]">
+              {rightNickname}
+            </span>
+            <div className="w-2.5 h-2.5 rounded-full bg-black" />
+          </motion.div>
+        </div>
+
+        {/* Last Move Indicator for desktop */}
+        {lastMove && (
+          <div className="flex items-center justify-center gap-1 mt-1 bg-[#3D2E22]/70 border border-[#8B5E34]/70 rounded-lg px-2 py-1 max-w-[200px]">
+            <div
+              className={`w-2 h-2 rounded-full ${
+                lastMove.playerColor === "white" ? "bg-white" : "bg-black"
+              }`}
+            ></div>
+            <span className="text-[#DEB887] font-[MedievalSharp] text-xs">
+              {lastMove.piece && (
+                <i
+                  className={`fas fa-${pieceIcons[lastMove.piece.type]} text-${
+                    lastMove.playerColor === "white" ? "white" : "gray-800"
+                  } text-xs mx-1`}
+                ></i>
+              )}
+              {lastMove.from} ➝ {lastMove.to}
+            </span>
+          </div>
+        )}
       </div>
 
       {/* File letters (a-h) at the top */}
@@ -120,6 +154,8 @@ export const Board: React.FC = () => {
           </div>
         ))}
       </div>
+
+   
 
       <div className="flex">
         {/* Rank numbers (8-1) on the left */}

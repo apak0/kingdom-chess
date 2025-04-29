@@ -80,7 +80,7 @@ export const ToastContainer: React.FC<ToastContainerProps> = ({
 }) => {
   // Maksimum 2 toast gösterilecek şekilde sınırlandırma
   const visibleMessages = messages.slice(0, 2);
-  
+
   return (
     <>
       {visibleMessages.map((message, index) => (

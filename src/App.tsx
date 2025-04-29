@@ -14,6 +14,16 @@ import { RoomCodeModal } from "./components/RoomCodeModal";
 import { useGameStore } from "./store/gameStore";
 import { ToastContainer } from "./components/Toast";
 
+// Taş ikonları için obje
+const pieceIcons = {
+  pawn: "chess-pawn",
+  rook: "chess-rook",
+  knight: "chess-knight",
+  bishop: "chess-bishop",
+  queen: "chess-queen",
+  king: "chess-king",
+};
+
 // Ana uygulama içinde artık BrowserRouter yok, doğrudan Routes
 function App() {
   return (
@@ -50,6 +60,7 @@ function GameScreen() {
     sendChatMessage,
     toastMessages,
     clearToastMessage,
+    lastMove,
   } = useGameStore();
 
   const [showSplash, setShowSplash] = useState(true);
@@ -242,74 +253,99 @@ function GameScreen() {
 
           <div className="w-full flex flex-col items-center">
             <div className="w-full max-w-[1200px] flex flex-col items-center px-2 md:px-0 z-10">
-              {/* Player Names with VS icon - Only visible on mobile */}
-              <div className="md:hidden flex items-center justify-center gap-4 w-full mb-4">
-                <motion.div
-                  initial={{ boxShadow: "none" }}
-                  animate={
-                    (isMultiplayer && playerColor === currentPlayer) ||
-                    (!isMultiplayer && currentPlayer === "white")
-                      ? {
-                          boxShadow: [
-                            "0 0 0px rgba(255, 215, 0, 0)",
-                            "0 0 15px rgba(255, 215, 0, 0.7)",
-                            "0 0 0px rgba(255, 215, 0, 0)",
-                          ],
-                        }
-                      : { boxShadow: "none" }
-                  }
-                  transition={
-                    (isMultiplayer && playerColor === currentPlayer) ||
-                    (!isMultiplayer && currentPlayer === "white")
-                      ? {
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }
-                      : { duration: 0.3 }
-                  }
-                  className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
-                >
-                  <div className="w-2.5 h-2.5 rounded-full bg-white" />
-                  <span className="text-[#DEB887] font-[MedievalSharp]">
-                    {isMultiplayer ? nickname || "Sen" : "Sen"}
-                  </span>
-                </motion.div>
+              {/* Player Names with VS icon - Mobile view */}
+              <div className="md:hidden flex flex-col items-center w-full mb-4">
+                <div className="flex items-center justify-center gap-4 w-full">
+                  <motion.div
+                    initial={{ boxShadow: "none" }}
+                    animate={
+                      (isMultiplayer && playerColor === currentPlayer) ||
+                      (!isMultiplayer && currentPlayer === "white")
+                        ? {
+                            boxShadow: [
+                              "0 0 0px rgba(255, 215, 0, 0)",
+                              "0 0 15px rgba(255, 215, 0, 0.7)",
+                              "0 0 0px rgba(255, 215, 0, 0)",
+                            ],
+                          }
+                        : { boxShadow: "none" }
+                    }
+                    transition={
+                      (isMultiplayer && playerColor === currentPlayer) ||
+                      (!isMultiplayer && currentPlayer === "white")
+                        ? {
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }
+                        : { duration: 0.3 }
+                    }
+                    className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
+                  >
+                    <div className="w-2.5 h-2.5 rounded-full bg-white" />
+                    <span className="text-[#DEB887] font-[MedievalSharp]">
+                      {isMultiplayer ? nickname || "Sen" : "Sen"}
+                    </span>
+                  </motion.div>
 
-                <Swords className="w-6 h-6 text-[#DEB887]" />
+                  <Swords className="w-6 h-6 text-[#DEB887]" />
 
-                <motion.div
-                  initial={{ boxShadow: "none" }}
-                  animate={
-                    (isMultiplayer && playerColor !== currentPlayer) ||
-                    (!isMultiplayer && currentPlayer === "black")
-                      ? {
-                          boxShadow: [
-                            "0 0 0px rgba(255, 215, 0, 0)",
-                            "0 0 15px rgba(255, 215, 0, 0.7)",
-                            "0 0 0px rgba(255, 215, 0, 0)",
-                          ],
-                        }
-                      : { boxShadow: "none" }
-                  }
-                  transition={
-                    (isMultiplayer && playerColor !== currentPlayer) ||
-                    (!isMultiplayer && currentPlayer === "black")
-                      ? {
-                          duration: 2,
-                          repeat: Infinity,
-                          ease: "easeInOut",
-                        }
-                      : { duration: 0.3 }
-                  }
-                  className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
-                >
-                  <span className="text-[#DEB887] font-[MedievalSharp]">
-                    {isMultiplayer ? opponentNickname || "?" : "AI"}
-                  </span>
-                  <div className="w-2.5 h-2.5 rounded-full bg-black" />
-                </motion.div>
+                  <motion.div
+                    initial={{ boxShadow: "none" }}
+                    animate={
+                      (isMultiplayer && playerColor !== currentPlayer) ||
+                      (!isMultiplayer && currentPlayer === "black")
+                        ? {
+                            boxShadow: [
+                              "0 0 0px rgba(255, 215, 0, 0)",
+                              "0 0 15px rgba(255, 215, 0, 0.7)",
+                              "0 0 0px rgba(255, 215, 0, 0)",
+                            ],
+                          }
+                        : { boxShadow: "none" }
+                    }
+                    transition={
+                      (isMultiplayer && playerColor !== currentPlayer) ||
+                      (!isMultiplayer && currentPlayer === "black")
+                        ? {
+                            duration: 2,
+                            repeat: Infinity,
+                            ease: "easeInOut",
+                          }
+                        : { duration: 0.3 }
+                    }
+                    className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
+                  >
+                    <span className="text-[#DEB887] font-[MedievalSharp]">
+                      {isMultiplayer ? opponentNickname || "?" : "AI"}
+                    </span>
+                    <div className="w-2.5 h-2.5 rounded-full bg-black" />
+                  </motion.div>
+                </div>
               </div>
+
+                 {/* Last Move Indicator for mobile */}
+                    <div className="md:hidden flex justify-center w-full mb-1">
+                      {lastMove && (
+                        <div className="flex items-center justify-center gap-1 bg-[#3D2E22]/70 border border-[#8B5E34]/70 rounded-lg px-2 py-1 max-w-[200px]">
+                          <div
+                            className={`w-2 h-2 rounded-full ${
+                              lastMove.playerColor === "white" ? "bg-white" : "bg-black"
+                            }`}
+                          ></div>
+                          <span className="text-[#DEB887] font-[MedievalSharp] text-xs">
+                            {lastMove.piece && (
+                              <i
+                                className={`fas fa-${pieceIcons[lastMove.piece.type]} text-${
+                                  lastMove.playerColor === "white" ? "white" : "gray-800"
+                                } text-xs mx-1`}
+                              ></i>
+                            )}
+                            {lastMove.from} ➝ {lastMove.to}
+                          </span>
+                        </div>
+                      )}
+                    </div>
 
               <div className="w-full flex justify-center items-center mb-4">
                 <motion.div
@@ -413,7 +449,7 @@ function GameScreen() {
                   </div>
 
                   {/* Desktop Layout - Horizontal with Side Navigation */}
-                  <div className="hidden md:flex items-start justify-center gap-8 mt-8">
+                  <div className="hidden md:flex items-start justify-center gap-8 ">
                     {/* Left navigation (Home button) */}
                     <div className="flex flex-col items-center justify-center">
                       <motion.button
