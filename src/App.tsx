@@ -300,7 +300,7 @@ function GameScreen() {
                   className="px-3 py-1 rounded-lg bg-[#3D2E22] border border-[#8B5E34] flex items-center gap-2"
                 >
                   <span className="text-[#DEB887] font-[MedievalSharp]">
-                    {isMultiplayer ? opponentNickname || "Rakip" : "AI"}
+                    {isMultiplayer ? opponentNickname || "?" : "AI"}
                   </span>
                   <div className="w-2.5 h-2.5 rounded-full bg-black" />
                 </motion.div>
