@@ -59,7 +59,8 @@ export const Toast: React.FC<ToastProps> = ({
           style={{ top: `${topOffset}px` }}
         >
           <div className="flex flex-col">
-            <span className="font-bold text-xs">{message.sender}</span>
+            <span className="text-xs underline">{message.sender}</span>
+            
             <span className="font-medium">{displayText}</span>
           </div>
         </motion.div>
