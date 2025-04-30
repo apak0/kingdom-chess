@@ -167,7 +167,7 @@ interface GameState {
     playerColor: PieceColor;
     playerName: string | null;
   } | null;
-  
+
   // Hamlelerin geçmişini tutacak dizi
   moveHistory: Array<{
     fen: string;
@@ -183,10 +183,10 @@ interface GameState {
       playerName: string | null;
     } | null;
   }>;
-  
+
   // İki oyuncunun da hazır olup olmadığını takip eden değişken
   isGameStarted: boolean;
-  
+
   selectPiece: (position: Position) => void;
   movePiece: (from: Position, to: Position) => void;
   initializeBoard: () => void;
@@ -296,7 +296,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             title: "⚠️ Dikkat",
             message: "Rakip oyuncu katılana kadar hamle yapamazsınız!",
             type: "check",
-          }
+          },
         }));
         return state;
       }
@@ -329,7 +329,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           console.log("Sırası olmayan taşla hamle yapılamaz");
           return state;
         }
-        
+
         // Hamleyi yapmadan önce mevcut durumu kaydet
         const currentState = {
           fen: state.chess.fen(),
@@ -399,10 +399,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         const isInCheck = state.chess.inCheck();
 
         // Hamle geçmişine ekle
-        const newMoveHistory = [
-          ...state.moveHistory,
-          currentState,
-        ];
+        const newMoveHistory = [...state.moveHistory, currentState];
 
         // Yeni state'i oluştur
         const newState = {
@@ -681,9 +678,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         lastMove: previousState.lastMove,
         moveHistory: state.moveHistory.slice(0, -1),
         currentPlayer:
-          previousState.lastMove?.playerColor === "white"
-            ? "black"
-            : "white",
+          previousState.lastMove?.playerColor === "white" ? "black" : "white",
       };
     }),
 
@@ -1030,7 +1025,6 @@ export const useGameStore = create<GameState>((set, get) => ({
           // Karşı oyuncunun hamlesi için ses efekti
           if (moveResult.captured) {
             playCaptureSound();
-            
           } else {
             playMoveSound();
           }

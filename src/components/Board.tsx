@@ -121,27 +121,6 @@ export const Board: React.FC = () => {
             <div className="w-2.5 h-2.5 rounded-full bg-black" />
           </motion.div>
         </div>
-
-        {/* Last Move Indicator for desktop */}
-        {lastMove && (
-          <div className="flex items-center justify-center gap-1 mt-1 bg-[#3D2E22]/70 border border-[#8B5E34]/70 rounded-lg px-2 py-1 max-w-[200px]">
-            <div
-              className={`w-2 h-2 rounded-full ${
-                lastMove.playerColor === "white" ? "bg-white" : "bg-black"
-              }`}
-            ></div>
-            <span className="text-[#DEB887] font-[MedievalSharp] text-xs">
-              {lastMove.piece && (
-                <i
-                  className={`fas fa-${pieceIcons[lastMove.piece.type]} text-${
-                    lastMove.playerColor === "white" ? "white" : "gray-800"
-                  } text-xs mx-1`}
-                ></i>
-              )}
-              {lastMove.from} ➝ {lastMove.to}
-            </span>
-          </div>
-        )}
       </div>
 
       {/* File letters (a-h) at the top */}

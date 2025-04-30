@@ -103,7 +103,7 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
             <motion.img
               src="/assets/play-with-ai.png"
               alt="AI ile Oyna"
-              className="w-[200px] md:w-[500px] h-[133px] md:h-[332px] rounded-lg object-cover"
+              className="w-[260px] md:w-[500px] h-[173px] md:h-[332px] rounded-lg object-cover"
               animate={
                 selectedMode === "ai"
                   ? imageAnimationVariants.selected
@@ -140,7 +140,7 @@ export const GameModeModal: React.FC<GameModeModalProps> = ({
             <motion.img
               src="/assets/play-with-friend.png"
               alt="Arkadaşınla Oyna"
-              className="w-[200px] md:w-[500px] h-[150px] md:h-[332px] rounded-lg object-cover"
+              className="w-[260px] md:w-[500px] h-[195px] md:h-[332px] rounded-lg object-cover"
               animate={
                 selectedMode === "multiplayer"
                   ? imageAnimationVariants.selected
