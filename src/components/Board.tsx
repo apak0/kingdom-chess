@@ -22,6 +22,7 @@ export const Board: React.FC = () => {
     playerNickname,
     opponentNickname,
     lastMove,
+    moveHistory,
   } = useGameStore();
 
   // Tahtayı çevirmek için gereken değişkenler
@@ -154,8 +155,6 @@ export const Board: React.FC = () => {
           </div>
         ))}
       </div>
-
-   
 
       <div className="flex">
         {/* Rank numbers (8-1) on the left */}

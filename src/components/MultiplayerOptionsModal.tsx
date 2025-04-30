@@ -131,7 +131,7 @@ export const MultiplayerOptionsModal: React.FC<
                       onChange={(e) => setRoomId(e.target.value)}
                       placeholder="Oda Kodunu Girin"
                       maxLength={6}
-                      className="w-full max-w-[200px] px-4 py-3 rounded-lg text-center text-2xl font-[MedievalSharp] bg-[#6B4423] text-[#DEB887] placeholder-[#DEB887]/50 border-2 border-[#8B5E34] focus:outline-none focus:ring-2 focus:ring-[#DEB887]"
+                      className="w-full max-w-[300px] px-4 py-3 rounded-lg text-center text-2xl font-[MedievalSharp] bg-[#6B4423] text-[#DEB887] placeholder-[#DEB887]/50 border-2 border-[#8B5E34] focus:outline-none focus:ring-2 focus:ring-[#DEB887]"
                     />
                     <motion.button
                       onClick={handleJoinSubmit}

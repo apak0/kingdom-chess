@@ -167,6 +167,23 @@ interface GameState {
     playerColor: PieceColor;
     playerName: string | null;
   } | null;
+  
+  // Hamlelerin geçmişini tutacak dizi
+  moveHistory: Array<{
+    fen: string;
+    capturedPieces: {
+      white: PieceType[];
+      black: PieceType[];
+    };
+    lastMove: {
+      piece: PieceType | null;
+      from: string;
+      to: string;
+      playerColor: PieceColor;
+      playerName: string | null;
+    } | null;
+  }>;
+  
   selectPiece: (position: Position) => void;
   movePiece: (from: Position, to: Position) => void;
   initializeBoard: () => void;
@@ -178,6 +195,7 @@ interface GameState {
   sendChatMessage: (text: string) => void;
   clearToastMessage: (id: string) => void;
   clearAllToastMessages: () => void;
+  undoMove: () => void; // Hamle geri alma fonksiyonu
 }
 
 // Socket olaylarını temizleme helper fonksiyonu
@@ -221,6 +239,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   messages: [],
   toastMessages: [],
   lastMove: null,
+  moveHistory: [],
 
   selectPiece: (position) =>
     set((state) => {
@@ -291,6 +310,13 @@ export const useGameStore = create<GameState>((set, get) => ({
           console.log("Sırası olmayan taşla hamle yapılamaz");
           return state;
         }
+        
+        // Hamleyi yapmadan önce mevcut durumu kaydet
+        const currentState = {
+          fen: state.chess.fen(),
+          capturedPieces: JSON.parse(JSON.stringify(state.capturedPieces)),
+          lastMove: state.lastMove ? { ...state.lastMove } : null,
+        };
 
         const moveResult = state.chess.move({
           from: fromSquare,
@@ -353,6 +379,12 @@ export const useGameStore = create<GameState>((set, get) => ({
         const isInStalemate = state.chess.isStalemate();
         const isInCheck = state.chess.inCheck();
 
+        // Hamle geçmişine ekle
+        const newMoveHistory = [
+          ...state.moveHistory,
+          currentState,
+        ];
+
         // Yeni state'i oluştur
         const newState = {
           ...state,
@@ -400,6 +432,7 @@ export const useGameStore = create<GameState>((set, get) => ({
             playerColor: state.currentPlayer,
             playerName: state.playerNickname,
           },
+          moveHistory: newMoveHistory,
         };
 
         // Tek oyuncu modunda ve oyun bitmemişse AI hamlesi yap
@@ -519,6 +552,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       messages: [],
       toastMessages: [],
       lastMove: null,
+      moveHistory: [],
     });
   },
 
@@ -610,6 +644,29 @@ export const useGameStore = create<GameState>((set, get) => ({
       toastMessages: [],
     })),
 
+  undoMove: () =>
+    set((state) => {
+      if (state.moveHistory.length === 0) return state;
+
+      const previousState = state.moveHistory[state.moveHistory.length - 1];
+
+      const newChess = new Chess();
+      newChess.load(previousState.fen);
+
+      return {
+        ...state,
+        chess: newChess,
+        board: convertBoardFromChess(newChess),
+        capturedPieces: previousState.capturedPieces,
+        lastMove: previousState.lastMove,
+        moveHistory: state.moveHistory.slice(0, -1),
+        currentPlayer:
+          previousState.lastMove?.playerColor === "white"
+            ? "black"
+            : "white",
+      };
+    }),
+
   createRoom: () => {
     // Önceki event listener'ları temizle
     cleanupSocketListeners();
@@ -651,6 +708,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         showNicknameModal: true,
         toastMessages: [],
         lastMove: null,
+        moveHistory: [],
       });
     });
 
@@ -811,6 +869,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           messages: [],
           toastMessages: [],
           lastMove: null,
+          moveHistory: [],
         });
       }, 3000);
     });
@@ -909,6 +968,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         showNicknameModal: true,
         toastMessages: [],
         lastMove: null,
+        moveHistory: [],
       });
     });
 
@@ -946,6 +1006,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           // Karşı oyuncunun hamlesi için ses efekti
           if (moveResult.captured) {
             playCaptureSound();
+            
           } else {
             playMoveSound();
           }
@@ -1079,6 +1140,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           messages: [],
           toastMessages: [],
           lastMove: null,
+          moveHistory: [],
         });
       }, 3000);
     });

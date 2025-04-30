@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { Routes, Route, useNavigate, useLocation } from "react-router-dom";
-import { Swords } from "lucide-react";
+import { Swords, RotateCcw } from "lucide-react";
 import { Modal } from "./components/Modal";
 import { Board } from "./components/Board";
 import { CapturedPieces } from "./components/CapturedPieces";
@@ -61,6 +61,8 @@ function GameScreen() {
     toastMessages,
     clearToastMessage,
     lastMove,
+    moveHistory,
+    undoMove,
   } = useGameStore();
 
   const [showSplash, setShowSplash] = useState(true);
@@ -324,28 +326,47 @@ function GameScreen() {
                 </div>
               </div>
 
-                 {/* Last Move Indicator for mobile */}
-                    <div className="md:hidden flex justify-center w-full mb-1">
-                      {lastMove && (
-                        <div className="flex items-center justify-center gap-1 bg-[#3D2E22]/70 border border-[#8B5E34]/70 rounded-lg px-2 py-1 max-w-[200px]">
-                          <div
-                            className={`w-2 h-2 rounded-full ${
-                              lastMove.playerColor === "white" ? "bg-white" : "bg-black"
-                            }`}
-                          ></div>
-                          <span className="text-[#DEB887] font-[MedievalSharp] text-xs">
-                            {lastMove.piece && (
-                              <i
-                                className={`fas fa-${pieceIcons[lastMove.piece.type]} text-${
-                                  lastMove.playerColor === "white" ? "white" : "gray-800"
-                                } text-xs mx-1`}
-                              ></i>
-                            )}
-                            {lastMove.from} ➝ {lastMove.to}
-                          </span>
-                        </div>
-                      )}
+              {/* Last Move Indicator for mobile */}
+              <div className="md:hidden flex justify-center w-full mb-1">
+                <div className="flex items-center justify-center gap-2">
+                  {lastMove && (
+                    <div className="flex items-center justify-center gap-1 bg-[#3D2E22]/70 border border-[#8B5E34]/70 rounded-lg px-2 py-1 max-w-[200px]">
+                      <div
+                        className={`w-2 h-2 rounded-full ${
+                          lastMove.playerColor === "white"
+                            ? "bg-white"
+                            : "bg-black"
+                        }`}
+                      ></div>
+                      <span className="text-[#DEB887] font-[MedievalSharp] text-xs">
+                        {lastMove.piece && (
+                          <i
+                            className={`fas fa-${
+                              pieceIcons[lastMove.piece.type]
+                            } text-${
+                              lastMove.playerColor === "white"
+                                ? "white"
+                                : "gray-800"
+                            } text-xs mx-1`}
+                          ></i>
+                        )}
+                        {lastMove.from} ➝ {lastMove.to}
+                      </span>
                     </div>
+                  )}
+
+                  {/* Geri Al butonu - Mobil için Move Indicator'ın yanında */}
+                  {moveHistory.length > 0 && !isMultiplayer && (
+                    <motion.button
+                      onClick={undoMove}
+                      className="flex items-center gap-1 bg-[#3D2E22] hover:bg-[#2a1f17] border border-[#8B5E34] text-[#DEB887] rounded-lg px-2 py-1 text-xs font-[MedievalSharp] transition-colors"
+                    >
+                      <RotateCcw size={14} />
+                      Geri Al
+                    </motion.button>
+                  )}
+                </div>
+              </div>
 
               <div className="w-full flex justify-center items-center mb-4">
                 <motion.div
@@ -428,6 +449,17 @@ function GameScreen() {
                           className="w-[100px] xl:w-[120px] rounded-lg"
                         />
                       </motion.button>
+
+                      {/* Geri Alma Butonu - Restart'ın altında */}
+                      {moveHistory.length > 0 && !isMultiplayer && (
+                        <motion.button
+                          onClick={undoMove}
+                          className="flex items-center gap-1 bg-[#3D2E22] hover:bg-[#2a1f17] border border-[#8B5E34] text-[#DEB887] rounded-lg px-3 py-1 text-sm font-[MedievalSharp] transition-colors"
+                        >
+                          <RotateCcw size={16} />
+                          Geri Al
+                        </motion.button>
+                      )}
                     </div>
                   </div>
                 </>
@@ -490,6 +522,17 @@ function GameScreen() {
                           className="w-[100px] xl:w-[120px] rounded-lg"
                         />
                       </motion.button>
+
+                      {/* Geri Alma Butonu - Restart'ın altında */}
+                      {moveHistory.length > 0 && !isMultiplayer && (
+                        <motion.button
+                          onClick={undoMove}
+                          className="flex items-center gap-1 bg-[#3D2E22] hover:bg-[#2a1f17] border border-[#8B5E34] text-[#DEB887] rounded-lg px-3 py-1 text-sm font-[MedievalSharp] transition-colors"
+                        >
+                          <RotateCcw size={16} />
+                          Geri Al
+                        </motion.button>
+                      )}
                     </div>
                   </div>
                 </>
