@@ -462,6 +462,17 @@ export const useGameStore = create<GameState>((set, get) => ({
                       type: "check" as const,
                     }
                   : { ...state.modalState, isOpen: false },
+                // AI hamlesi için lastMove bilgisini güncelle
+                lastMove: {
+                  piece: convertPieceFromChess({
+                    type: aiMoveResult.piece,
+                    color: aiMoveResult.color,
+                  }),
+                  from: aiMoveResult.from,
+                  to: aiMoveResult.to,
+                  playerColor: "black", // AI her zaman siyah oynar
+                  playerName: "AI",
+                },
               });
             }
           }, 1000);
@@ -732,7 +743,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   message: `${
                     state.currentPlayer === "white" ? "Siyah" : "Beyaz"
                   } şah çekildi!`,
-                  type: "check" as const,
+                  type: "check",
                 }
               : { ...state.modalState, isOpen: false },
             lastMove: {
@@ -1000,7 +1011,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                   message: `${
                     state.currentPlayer === "white" ? "Siyah" : "Beyaz"
                   } şah çekildi!`,
-                  type: "check" as const,
+                  type: "check",
                 }
               : { ...state.modalState, isOpen: false },
             lastMove: {
