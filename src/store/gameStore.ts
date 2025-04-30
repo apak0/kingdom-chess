@@ -184,6 +184,9 @@ interface GameState {
     } | null;
   }>;
   
+  // İki oyuncunun da hazır olup olmadığını takip eden değişken
+  isGameStarted: boolean;
+  
   selectPiece: (position: Position) => void;
   movePiece: (from: Position, to: Position) => void;
   initializeBoard: () => void;
@@ -240,6 +243,7 @@ export const useGameStore = create<GameState>((set, get) => ({
   toastMessages: [],
   lastMove: null,
   moveHistory: [],
+  isGameStarted: false,
 
   selectPiece: (position) =>
     set((state) => {
@@ -279,6 +283,21 @@ export const useGameStore = create<GameState>((set, get) => ({
     set((state) => {
       // Oyun bittiyse hamle yapılamaz
       if (state.isCheckmate || state.isStalemate) {
+        return state;
+      }
+
+      // Çok oyunculu modda oyun başlamadıysa hamle yapılamaz
+      if (state.isMultiplayer && !state.isGameStarted) {
+        console.log("Rakip oyuncu katılana kadar hamle yapamazsınız!");
+        set((prevState) => ({
+          ...prevState,
+          modalState: {
+            isOpen: true,
+            title: "⚠️ Dikkat",
+            message: "Rakip oyuncu katılana kadar hamle yapamazsınız!",
+            type: "check",
+          }
+        }));
         return state;
       }
 
@@ -553,6 +572,7 @@ export const useGameStore = create<GameState>((set, get) => ({
       toastMessages: [],
       lastMove: null,
       moveHistory: [],
+      isGameStarted: false,
     });
   },
 
@@ -709,6 +729,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         toastMessages: [],
         lastMove: null,
         moveHistory: [],
+        isGameStarted: false,
       });
     });
 
@@ -723,6 +744,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           message: "Rakip odaya katıldı. Beyaz taş olarak başlıyorsunuz.",
           type: "check",
         },
+        isGameStarted: true,
       }));
     });
 
@@ -870,6 +892,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           toastMessages: [],
           lastMove: null,
           moveHistory: [],
+          isGameStarted: false,
         });
       }, 3000);
     });
@@ -969,6 +992,7 @@ export const useGameStore = create<GameState>((set, get) => ({
         toastMessages: [],
         lastMove: null,
         moveHistory: [],
+        isGameStarted: false,
       });
     });
 
@@ -1141,6 +1165,7 @@ export const useGameStore = create<GameState>((set, get) => ({
           toastMessages: [],
           lastMove: null,
           moveHistory: [],
+          isGameStarted: false,
         });
       }, 3000);
     });
