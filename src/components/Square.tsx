@@ -19,6 +19,7 @@ export const Square: React.FC<SquareProps> = ({ position, isLight }) => {
     isCheckmate,
     isMultiplayer,
     playerColor,
+    isGameStarted,
   } = useGameStore();
   const piece = board[position.y][position.x];
 
@@ -32,8 +33,11 @@ export const Square: React.FC<SquareProps> = ({ position, isLight }) => {
   const isValidTarget = selectedPiece && !isSelected;
 
   const handleClick = () => {
-    // Oyun bittiyse veya çoklu oyuncu modunda doğru sıra bizde değilse işlem yapma
+    // Oyun bittiyse işlem yapma
     if (isCheckmate) return;
+
+    // Çoklu oyuncu modunda, oyun başlamadıysa işlem yapma
+    if (isMultiplayer && !isGameStarted) return;
 
     if (isMultiplayer) {
       // Multiplayer modunda, sadece kendi rengimizde olan taşları seçebiliriz
@@ -68,6 +72,26 @@ export const Square: React.FC<SquareProps> = ({ position, isLight }) => {
     !isSelected &&
     isValidMove(selectedPiece.position, position);
 
+  // İmleç görünümünü belirleme
+  const getPointerStyle = () => {
+    if (isCheckmate) return "cursor-default";
+
+    if (isMultiplayer) {
+      // Çok oyunculu modda oyun başlamadıysa işaretçiyi devre dışı bırak
+      if (!isGameStarted) return "cursor-default";
+
+      // Kendi rengimizdeki taşlar veya hamle yapılabilecek yerler için pointer
+      if (piece?.color === playerColor || canMoveTo) return "cursor-pointer";
+
+      return "cursor-default";
+    } else {
+      // Tek oyuncu modunda sırası gelen oyuncunun taşları ve hamle yapılabilecek yerler için pointer
+      if (piece?.color === currentPlayer || canMoveTo) return "cursor-pointer";
+
+      return "cursor-default";
+    }
+  };
+
   return (
     <div
       onClick={handleClick}
@@ -76,15 +100,7 @@ export const Square: React.FC<SquareProps> = ({ position, isLight }) => {
         ${isLight ? "bg-[#D4A373]" : "bg-[#8B5E34]"}
         ${isSelected ? "ring-4 ring-[#4A3728] ring-opacity-90 shadow-lg" : ""}
         transition-colors duration-200
-        ${
-          isMultiplayer
-            ? (piece?.color === playerColor || canMoveTo) && !isCheckmate
-              ? "cursor-pointer"
-              : "cursor-default"
-            : (piece?.color === currentPlayer || canMoveTo) && !isCheckmate
-            ? "cursor-pointer"
-            : "cursor-default"
-        }
+        ${getPointerStyle()}
       `}
     >
       {piece && <PieceComponent piece={piece} isSelected={isSelected} />}

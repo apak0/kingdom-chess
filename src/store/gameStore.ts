@@ -314,12 +314,13 @@ export const useGameStore = create<GameState>((set, get) => ({
 
         // Multiplayer modunda, sadece kendi rengimizi ve sıramız geldiğinde hareket ettirebiliriz
         if (state.isMultiplayer) {
+          // Kendi taşımız değilse hamle yapamayız
           if (piece.color !== state.playerColor) {
             console.log("Kendi taşınızı seçmelisiniz");
             return state;
           }
 
-          // Eğer oyuncunun rengi ile current player uyuşmuyorsa hamle yapamaz
+          // Sıra bizde değilse hamle yapamayız
           if (state.playerColor !== state.currentPlayer) {
             console.log("Sıra sizde değil");
             return state;
@@ -438,7 +439,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                 message: `${
                   state.currentPlayer === "white" ? "Siyah" : "Beyaz"
                 } şah çekildi!`,
-                type: "check" as const,
+                type: "check",
               }
             : state.modalState,
           lastMove: {
@@ -508,7 +509,7 @@ export const useGameStore = create<GameState>((set, get) => ({
                       isOpen: true,
                       title: "♚ Şah!",
                       message: "Beyaz şah çekildi!",
-                      type: "check" as const,
+                      type: "check",
                     }
                   : { ...state.modalState, isOpen: false },
                 // AI hamlesi için lastMove bilgisini güncelle
@@ -989,6 +990,21 @@ export const useGameStore = create<GameState>((set, get) => ({
         moveHistory: [],
         isGameStarted: false,
       });
+    });
+
+    // gameStart eventi - odaya katılan siyah oyuncu için
+    socket.on("gameStart", (gameData) => {
+      console.log("gameStart event received for black player:", gameData);
+      set((state) => ({
+        ...state,
+        modalState: {
+          isOpen: true,
+          title: "🎮 Oyun Başladı!",
+          message: "Oda hazır. Siyah taş olarak oyuna katıldınız.",
+          type: "check",
+        },
+        isGameStarted: true,
+      }));
     });
 
     // joinError eventi - sadece deep link ile gelmediysek ve henüz başarıyla katılmadıysak hata göster
