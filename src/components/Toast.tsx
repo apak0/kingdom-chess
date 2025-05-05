@@ -60,7 +60,7 @@ export const Toast: React.FC<ToastProps> = ({
         >
           <div className="flex flex-col">
             <span className="text-xs underline">{message.sender}</span>
-            
+
             <span className="font-medium">{displayText}</span>
           </div>
         </motion.div>
